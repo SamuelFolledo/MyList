@@ -57,5 +57,5 @@ The interface is up to you to decide. I have provided a sample design, but you a
 
 
 ## External Links
-
-Project idea based on: [The Task App](https://twitter.com/thetaskapp)
+- Project idea based on: [The Task App](https://twitter.com/thetaskapp)
+- Actual Rubrics Link [click here](https://github.com/Make-School-Courses/MOB-2.1-Local-Persistence-in-iOS/blob/master/Assignments/Taskee/specifications.md)
