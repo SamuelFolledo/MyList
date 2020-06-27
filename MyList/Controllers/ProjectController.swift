@@ -11,6 +11,16 @@ import SnapKit
 
 class ProjectController: UIViewController {
     
+    lazy var tableView: UITableView = {
+        let table = UITableView()
+        table.rowHeight = 100
+        table.delegate = self
+        table.dataSource = self
+        table.tableFooterView = UIView()
+        table.register(ChatRoomCell.self, forCellReuseIdentifier: String(describing: ChatRoomCell.self))
+        return table
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
