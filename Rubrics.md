@@ -45,7 +45,7 @@ Your code will be examined on these categories:
 
 The interface is up to you to decide. I have provided a sample design, but you are free to experiment with your own interpretations.
 
-![sketch](taskee.png)
+![sketch](https://github.com/Make-School-Courses/MOB-2.1-Local-Persistence-in-iOS/blob/master/Assignments/Taskee/taskee.png)
 
 ## Extra Challenges
 
@@ -53,7 +53,7 @@ The interface is up to you to decide. I have provided a sample design, but you a
 - Task reminder; send a local notification a day before a task is due.
 - Create a widget companion for the app:
 
-![widget](widget.png)
+![widget](https://github.com/Make-School-Courses/MOB-2.1-Local-Persistence-in-iOS/raw/master/Assignments/Taskee/widget.png)
 
 
 ## External Links
