@@ -17,7 +17,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(frame: UIScreen.main.bounds) //needed to not use storyboard
-        let vc = ViewController() //needed to not use storyboard
+        let vc = ProjectController() //needed to not use storyboard
         navigationController = UINavigationController(rootViewController: vc)
         window?.rootViewController = navigationController //needed to not use storyboard
         window?.makeKeyAndVisible() //needed to not use storyboard

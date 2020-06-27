@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  ProjectController.swift
 //  MyList
 //
 //  Created by Samuel Folledo on 6/26/20.
@@ -9,8 +9,8 @@
 import UIKit
 import SnapKit
 
-class ViewController: UIViewController {
-
+class ProjectController: UIViewController {
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
