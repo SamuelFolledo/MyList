@@ -11,20 +11,115 @@ import SnapKit
 
 class ProjectController: UIViewController {
     
+    var projects: [Project] = [] { didSet { tableView.reloadData() } }
+    var filteredProjects: [Project] = [] { didSet { tableView.reloadData() } }
+    
+    //MARK: Properties Views
     lazy var tableView: UITableView = {
         let table = UITableView()
         table.rowHeight = 100
         table.delegate = self
         table.dataSource = self
         table.tableFooterView = UIView()
-        table.register(ChatRoomCell.self, forCellReuseIdentifier: String(describing: ChatRoomCell.self))
+        table.register(ProjectCell.self, forCellReuseIdentifier: String(describing: ProjectCell.self))
         return table
+    }()
+    lazy var newProjectButton: UIBarButtonItem = {
+        let barButton = UIBarButtonItem(title: "New Project", style: .plain, target: self, action: #selector(self.handleNewProject))
+        return barButton
+    }()
+    lazy var searchController: UISearchController = {
+        let searchController = UISearchController(searchResultsController: nil)
+        searchController.searchResultsUpdater = self
+        self.definesPresentationContext = true
+        return searchController
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
-        view.backgroundColor = .red
+        setupViews()
+    }
+    
+    //MARK: Private Methods
+    fileprivate func setupViews() {
+        setupNavigationBar()
+        constraintTableView()
+    }
+    
+    fileprivate func constraintTableView() {
+        self.view.addSubview(tableView)
+        tableView.snp.makeConstraints { (make) in
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.left.equalTo(view.safeAreaLayoutGuide.snp.left)
+            make.right.equalTo(view.safeAreaLayoutGuide.snp.right)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
+        }
+    }
+    
+    fileprivate func setupNavigationBar() {
+        self.title = "Projects"
+        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationItem.rightBarButtonItem = newProjectButton
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = true
+        definesPresentationContext = true //needed for searchController
+    }
+    
+    //MARK: Helpers
+    @objc func handleNewProject() {
+        let vc = NewProjectController()
+//        vc.chatRoomController = self
+        vc.modalPresentationStyle = .fullScreen
+        navigationController?.pushViewController(vc, animated: true)
     }
 }
 
+extension ProjectController: UITableViewDelegate{
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let project: Project!
+        if searchController.isActive && searchController.searchBar.text != "" {
+            project = filteredProjects[indexPath.row]
+        } else {
+            project = projects[indexPath.row]
+        }
+        print(project.name)
+    }
+}
+
+extension ProjectController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if searchController.isActive && searchController.searchBar.text != "" {
+            return filteredProjects.count
+        } else {
+            return projects.count
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell: ProjectCell = tableView.dequeueReusableCell(withIdentifier: String(describing: ProjectCell.self), for: indexPath) as! ProjectCell
+        let project: Project!
+        if searchController.isActive && searchController.searchBar.text != "" {
+            project = filteredProjects[indexPath.row]
+        } else {
+            project = projects[indexPath.row]
+        }
+//        cell.populateViews(chatRoom: chatRoom)
+        return cell
+    }
+}
+
+extension ProjectController: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        filterContentForSearchText(searchText: searchController.searchBar.text!)
+    }
+    
+    //MARK: Private Search Method
+    func filterContentForSearchText(searchText: String, scope: String = "All") {
+        filteredProjects = projects.filter({ (project) -> Bool in
+            return project.toUserName.lowercased().contains(searchText.lowercased())
+                || project.chatRoomName.lowercased().contains(searchText.lowercased())
+                || project.lastMessage.lowercased().contains(searchText.lowercased())
+        })
+        tableView.reloadData()
+    }
+}
