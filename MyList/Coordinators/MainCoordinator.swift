@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 class MainCoordinator: Coordinator {
     
@@ -32,8 +33,20 @@ class MainCoordinator: Coordinator {
     func goToProjectEntry(project: Project?) {
         let vc = ProjectEntryController()
         vc.coordinator = self
-        vc.project = project
         vc.view.backgroundColor = .white
+        vc.delegate = self
+        let childContext = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
+        childContext.parent = coreDataStack.mainContext
+        vc.childContext = childContext
+        if project == nil { //new project
+            let newProject = Project(context: childContext)
+            vc.project = newProject
+            vc.title = "New Project"
+        } else { //edit project
+            let projectToEdit = childContext.object(with: project!.objectID) as? Project
+            vc.project = projectToEdit
+            vc.title = "Edit Project"
+        }
         navigationController.pushViewController(vc, animated: true)
     }
     
