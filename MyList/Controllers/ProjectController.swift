@@ -116,9 +116,8 @@ extension ProjectController: UISearchResultsUpdating {
     //MARK: Private Search Method
     func filterContentForSearchText(searchText: String, scope: String = "All") {
         filteredProjects = projects.filter({ (project) -> Bool in
-            return project.toUserName.lowercased().contains(searchText.lowercased())
-                || project.chatRoomName.lowercased().contains(searchText.lowercased())
-                || project.lastMessage.lowercased().contains(searchText.lowercased())
+            return project.name.lowercased().contains(searchText.lowercased())
+                || project.detail.lowercased().contains(searchText.lowercased())
         })
         tableView.reloadData()
     }
