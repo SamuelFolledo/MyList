@@ -118,16 +118,6 @@ class ProjectEntryController: UIViewController {
     
     //MARK: Helpers
     @objc func handleSaveEditProject() {
-        updateProject()
-        delegate?.didSaveProject(vc: self, didSave: true)
-    }
-    
-    func populateViewsWithProject() {
-        guard let project = project else { return }
-        nameTextField.text = project.name
-    }
-    
-    func updateProject() {
         guard let project = project else { return }
         guard let name = nameTextField.text, !name.isEmpty else { return }
         project.name = name
@@ -136,6 +126,12 @@ class ProjectEntryController: UIViewController {
         project.tasks = []
         project.lastOpenedDate = Date()
         project.taskLeft = 0
+        delegate?.didSaveProject(vc: self, didSave: true)
+    }
+    
+    func populateViewsWithProject() {
+        guard let project = project else { return }
+        nameTextField.text = project.name
     }
 }
 
