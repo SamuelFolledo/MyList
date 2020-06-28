@@ -7,10 +7,11 @@
 //
 
 import UIKit
+import CoreData
 
 // MARK: ProjectEntryDelegate
 protocol ProjectEntryDelegate {
-  func didFinish(viewController: ProjectController, didSave: Bool)
+  func didSaveProject(vc: ProjectEntryController, didSave: Bool)
 }
 
 class ProjectEntryController: UIViewController {
@@ -19,6 +20,7 @@ class ProjectEntryController: UIViewController {
     var project: Project? {
         didSet { title = project == nil ? "New Project" : "Edit Project" }
     }
+    var childContext: NSManagedObjectContext!
     var delegate: ProjectEntryDelegate?
     
     //MARK: Views
@@ -60,7 +62,7 @@ class ProjectEntryController: UIViewController {
     }()
     lazy var saveEditButton: UIBarButtonItem = {
         let title = project == nil ? "Save" : "Edit"
-        let barButton = UIBarButtonItem(title: title, style: .plain, target: self, action: #selector(self.handleEditSaveProject))
+        let barButton = UIBarButtonItem(title: title, style: .plain, target: self, action: #selector(self.handleSaveEditProject))
         return barButton
     }()
     
@@ -68,6 +70,11 @@ class ProjectEntryController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        populateViewsWithProject()
     }
     
     // MARK: Private Methods
@@ -112,8 +119,25 @@ class ProjectEntryController: UIViewController {
     }
     
     //MARK: Helpers
-    @objc func handleEditSaveProject() {
-        dismiss(animated: true, completion: nil)
+    @objc func handleSaveEditProject() {
+        updateProject()
+        delegate?.didSaveProject(vc: self, didSave: true)
+    }
+    
+    func populateViewsWithProject() {
+        guard let project = project else { return }
+        nameTextField.text = project.name
+    }
+    
+    func updateProject() {
+        guard let project = project else { return }
+        guard let name = nameTextField.text, !name.isEmpty else { return }
+        project.name = name
+        project.detail = "No detail"
+        project.color = UIColor.blue
+        project.tasks = []
+        project.lastOpenedDate = Date()
+        project.taskLeft = 0
     }
 }
 
