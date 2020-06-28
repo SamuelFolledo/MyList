@@ -44,9 +44,17 @@ class ProjectController: UIViewController {
         return searchController
     }()
     
+    //MARK: App Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        projects.removeAll()
+        guard let fetchedProjects = fetchedResultsController.fetchedObjects else { return }
+        projects = fetchedProjects
     }
     
     //MARK: Private Methods
@@ -98,13 +106,13 @@ private extension ProjectController {
     func projectFetchRequest() -> NSFetchRequest<Project> {
         let fetchRequest:NSFetchRequest<Project> = Project.fetchRequest()
         fetchRequest.fetchBatchSize = 20
-        let sortDescriptor = NSSortDescriptor(key: #keyPath(Project.lastOpened), ascending: false)
+        let sortDescriptor = NSSortDescriptor(key: #keyPath(Project.lastOpenedDate), ascending: false)
         fetchRequest.sortDescriptors = [sortDescriptor]
         return fetchRequest
     }
 }
 
-// MARK: NSFetchedResultsControllerDelegate
+// MARK: NSFetchedResultsController Delegate
 extension ProjectController: NSFetchedResultsControllerDelegate {
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         tableView.reloadData()
@@ -126,6 +134,11 @@ extension ProjectController: UITableViewDelegate {
 
 // MARK: TableView DataSource
 extension ProjectController: UITableViewDataSource {
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return fetchedResultsController.sections?.count ?? 0
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if searchController.isActive && searchController.searchBar.text != "" {
             return filteredProjects.count
@@ -159,6 +172,5 @@ extension ProjectController: UISearchResultsUpdating {
             return project.name.lowercased().contains(searchText.lowercased())
                 || project.detail.lowercased().contains(searchText.lowercased())
         })
-        tableView.reloadData()
     }
 }
