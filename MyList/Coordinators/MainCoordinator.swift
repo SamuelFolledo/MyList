@@ -44,13 +44,34 @@ class MainCoordinator: Coordinator {
         vc.title = project.name
         navigationController.pushViewController(vc, animated: true)
     }
-    
-    fileprivate func setupNavigationController() {
+}
+
+//MARK: Private Methods
+private extension MainCoordinator {
+    func setupNavigationController() {
         self.navigationController.isNavigationBarHidden = false
         self.navigationController.navigationBar.prefersLargeTitles = true
         self.navigationController.navigationBar.backgroundColor = .white
-        self.navigationController.navigationBar.tintColor = .red
-//        navigationController.navigationBar.tintColor = SettingsService.shared.grayColor //button color
-//        navigationController.setStatusBarColor(backgroundColor: kMAINCOLOR)
+        self.navigationController.navigationBar.tintColor = .red //button color
+        //        navigationController.setStatusBarColor(backgroundColor: kMAINCOLOR)
+    }
+}
+
+extension MainCoordinator: ProjectEntryDelegate {
+    func didSaveProject(vc: ProjectEntryController, didSave: Bool) {
+        print(navigationController.viewControllers.last?.description)
+        guard didSave, let context = vc.childContext, context.hasChanges else {
+            navigationController.popViewController(animated: true)
+            return
+        }
+        context.perform {
+            do {
+                try context.save()
+            } catch let error as NSError {
+                fatalError("Error: \(error.localizedDescription)")
+            }
+            self.coreDataStack.saveContext()
+        }
+        navigationController.popViewController(animated: true)
     }
 }
