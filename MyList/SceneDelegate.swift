@@ -11,16 +11,15 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
-    var navigationController: UINavigationController?
+    var coordinator: MainCoordinator!
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
-        window = UIWindow(frame: UIScreen.main.bounds) //needed to not use storyboard
-        let vc = ProjectController() //needed to not use storyboard
-        navigationController = UINavigationController(rootViewController: vc)
-        window?.rootViewController = navigationController //needed to not use storyboard
-        window?.makeKeyAndVisible() //needed to not use storyboard
-        window?.windowScene = windowScene //needed to not use storyboard
+        window = UIWindow(frame: UIScreen.main.bounds)
+        window!.makeKeyAndVisible()
+        window!.windowScene = windowScene
+        coordinator = MainCoordinator(window: window!)
+        coordinator.start()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -38,6 +37,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func sceneWillResignActive(_ scene: UIScene) {
         // Called when the scene will move from an active state to an inactive state.
         // This may occur due to temporary interruptions (ex. an incoming phone call).
+        coordinator.coreDataStack.saveContext()
     }
 
     func sceneWillEnterForeground(_ scene: UIScene) {
@@ -52,8 +52,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         // Save changes in the application's managed object context when the application transitions to the background.
 //        (UIApplication.shared.delegate as? AppDelegate)?.saveContext
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
-        appDelegate.coreDataStack.saveContext()
+        coordinator.coreDataStack.saveContext()
     }
 }
 
