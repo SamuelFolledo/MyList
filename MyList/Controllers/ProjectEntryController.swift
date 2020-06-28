@@ -17,9 +17,7 @@ protocol ProjectEntryDelegate {
 class ProjectEntryController: UIViewController {
     
     weak var coordinator: MainCoordinator?
-    var project: Project? {
-        didSet { title = project == nil ? "New Project" : "Edit Project" }
-    }
+    var project: Project?
     var childContext: NSManagedObjectContext!
     var delegate: ProjectEntryDelegate?
     
