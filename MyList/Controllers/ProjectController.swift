@@ -44,13 +44,9 @@ class ProjectController: UIViewController {
         return searchController
     }()
     
-    override func loadView() {
-        super.loadView()
-        setupViews()
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupViews()
     }
     
     //MARK: Private Methods
