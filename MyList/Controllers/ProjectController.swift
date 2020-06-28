@@ -128,7 +128,7 @@ extension ProjectController: UITableViewDelegate {
         } else {
             project = projects[indexPath.row]
         }
-        print(project.name)
+        coordinator.goToTask(project: project)
     }
 }
 

@@ -72,7 +72,7 @@ private extension MainCoordinator {
 
 extension MainCoordinator: ProjectEntryDelegate {
     func didSaveProject(vc: ProjectEntryController, didSave: Bool) {
-        print(navigationController.viewControllers.last?.description)
+//        print(navigationController.viewControllers.last?.description)
         guard didSave, let context = vc.childContext, context.hasChanges else {
             navigationController.popViewController(animated: true)
             return
