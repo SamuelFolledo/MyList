@@ -72,9 +72,9 @@ extension TaskController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell: ProjectCell = tableView.dequeueReusableCell(withIdentifier: String(describing: ProjectCell.self), for: indexPath) as! ProjectCell
+        let cell: TaskCell = tableView.dequeueReusableCell(withIdentifier: String(describing: TaskCell.self), for: indexPath) as! TaskCell
         let task = tasks[indexPath.row]
-//        cell.populateViews(chatRoom: chatRoom)
+        cell.populateViews(task: task)
         return cell
     }
 }
