@@ -8,14 +8,22 @@
 
 import UIKit
 import SnapKit
+import CoreData
 
 class ProjectController: UIViewController {
     
-    weak var coordinator: MainCoordinator!
-    var projects: [Project] = [] { didSet { tableView.reloadData() } }
-    var filteredProjects: [Project] = [] { didSet { tableView.reloadData() } }
+    weak var coordinator: MainCoordinator! {
+        didSet { fetchedResultsController = projectListFetchedResultsController() }
+    }
+    var projects: [Project] = [] {
+        didSet { tableView.reloadData() }
+    }
+    var filteredProjects: [Project] = [] {
+        didSet { tableView.reloadData() }
+    }
     
     //MARK: Properties Views
+    lazy var fetchedResultsController: NSFetchedResultsController<Project> = NSFetchedResultsController()
     lazy var tableView: UITableView = {
         let table = UITableView()
         table.rowHeight = 100
@@ -36,9 +44,13 @@ class ProjectController: UIViewController {
         return searchController
     }()
     
+    override func loadView() {
+        super.loadView()
+        setupViews()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupViews()
     }
     
     //MARK: Private Methods
@@ -67,11 +79,44 @@ class ProjectController: UIViewController {
     
     //MARK: Helpers
     @objc func handleNewProject() {
-        coordinator!.goToNewProject()
+        coordinator!.goToProjectEntry(project: nil)
     }
 }
 
-extension ProjectController: UITableViewDelegate{
+// MARK: NSFetchedResultsController
+private extension ProjectController {
+    func projectListFetchedResultsController() -> NSFetchedResultsController<Project> {
+        let fetchedResultController = NSFetchedResultsController(fetchRequest: projectFetchRequest(),
+                                                                 managedObjectContext: coordinator.coreDataStack.mainContext,
+                                                                 sectionNameKeyPath: nil,
+                                                                 cacheName: nil)
+        fetchedResultController.delegate = self
+        do {
+            try fetchedResultController.performFetch()
+        } catch let error as NSError {
+            fatalError("Error: \(error.localizedDescription)")
+        }
+        return fetchedResultController
+    }
+    
+    func projectFetchRequest() -> NSFetchRequest<Project> {
+        let fetchRequest:NSFetchRequest<Project> = Project.fetchRequest()
+        fetchRequest.fetchBatchSize = 20
+        let sortDescriptor = NSSortDescriptor(key: #keyPath(Project.lastOpened), ascending: false)
+        fetchRequest.sortDescriptors = [sortDescriptor]
+        return fetchRequest
+    }
+}
+
+// MARK: NSFetchedResultsControllerDelegate
+extension ProjectController: NSFetchedResultsControllerDelegate {
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        tableView.reloadData()
+    }
+}
+
+// MARK: TableView Delegate
+extension ProjectController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let project: Project!
         if searchController.isActive && searchController.searchBar.text != "" {
@@ -83,6 +128,7 @@ extension ProjectController: UITableViewDelegate{
     }
 }
 
+// MARK: TableView DataSource
 extension ProjectController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if searchController.isActive && searchController.searchBar.text != "" {
@@ -100,11 +146,12 @@ extension ProjectController: UITableViewDataSource {
         } else {
             project = projects[indexPath.row]
         }
-//        cell.populateViews(chatRoom: chatRoom)
+        cell.populateViews(project: project)
         return cell
     }
 }
 
+//MARK: SearchController
 extension ProjectController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         filterContentForSearchText(searchText: searchController.searchBar.text!)
