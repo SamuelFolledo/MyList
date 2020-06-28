@@ -1,5 +1,5 @@
 //
-//  NewProjectController.swift
+//  ProjectEntryController.swift
 //  MyList
 //
 //  Created by Samuel Folledo on 6/27/20.
@@ -8,9 +8,18 @@
 
 import UIKit
 
-class NewProjectController: UIViewController {
+class ProjectEntryController: UIViewController {
     
     weak var coordinator: MainCoordinator?
+    var project: Project? {
+        didSet {
+            if project == nil {
+                title = "New Project"
+            } else {
+                title = "Edit Project"
+            }
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
