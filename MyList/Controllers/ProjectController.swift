@@ -45,7 +45,6 @@ class ProjectController: UIViewController {
     fileprivate func setupViews() {
         setupNavigationBar()
         constraintTableView()
-        view.backgroundColor = .white
     }
     
     fileprivate func constraintTableView() {

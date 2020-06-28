@@ -24,6 +24,7 @@ class MainCoordinator: Coordinator {
     //MARK: Methods
     func start() {
         let vc = ProjectController()
+        vc.view.backgroundColor = .white
         vc.coordinator = self //assign vc's coordinator to self
         navigationController.pushViewController(vc, animated: false)
     }
