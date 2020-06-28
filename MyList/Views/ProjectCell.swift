@@ -74,7 +74,9 @@ class ProjectCell: UITableViewCell { //is the UserCell we registered to our Tabl
         super.prepareForReuse()
         nameLabel.text = ""
         detailLabel.text = ""
+        detailLabel.isHidden = true
         pendingTaskLabel.text = ""
+        pendingTaskLabel.isHidden = true
     }
     
     //MARK: Private Methods
@@ -121,18 +123,15 @@ class ProjectCell: UITableViewCell { //is the UserCell we registered to our Tabl
     }
     
     func populateViews(project: Project) {
-//        userNameLabel.text = chatRoom.chatRoomName
-//        messageCounterStackView.isHidden = false
-//        lastMessageLabel.isHidden = false
-//        if chatRoom.lastMessage != "" {
-//            lastMessageLabel.text = chatRoom.lastMessage
-//        } else {
-//            lastMessageLabel.text = "???"
-//        }
-//        dateLabel.isHidden = false
-//        dateLabel.text = timeSinceNow(chatRoom.lastMessageDate)
-//        let currUserCounter = chatRoom.getCurrentUserCounter()
-//        counterLabel.isHidden = currUserCounter > 0 ? false : true
-//        counterLabel.text = currUserCounter < 100 ? "\(currUserCounter)" : "99+"
+        nameLabel.text = project.name
+        if project.detail != "" {
+            detailLabel.isHidden = false
+            detailLabel.text = project.detail
+        }
+        if project.taskLeft > 0 {
+            pendingTaskLabel.isHidden = false
+            let taskLeftString: String = project.taskLeft == 0 ? "task left" : "tasks left"
+            pendingTaskLabel.text = "\(project.taskLeft) \(taskLeftString)"
+        }
     }
 }
