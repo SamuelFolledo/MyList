@@ -120,7 +120,7 @@ class TaskCell: UITableViewCell { //is the UserCell we registered to our TableVi
         }
     }
     
-    func populateViews(project: Project) {
+    func populateViews(task: Task) {
 //        userNameLabel.text = chatRoom.chatRoomName
 //        messageCounterStackView.isHidden = false
 //        lastMessageLabel.isHidden = false
