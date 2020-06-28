@@ -17,10 +17,10 @@ extension Project {
         return NSFetchRequest<Project>(entityName: "Project")
     }
 
-    @NSManaged public var color: NSObject?
-    @NSManaged public var detail: String?
-    @NSManaged public var lastOpened: Date?
-    @NSManaged public var name: String?
+    @NSManaged public var color: NSObject
+    @NSManaged public var detail: String
+    @NSManaged public var lastOpened: Date
+    @NSManaged public var name: String
     @NSManaged public var taskLeft: Int32
     @NSManaged public var tasks: NSOrderedSet?
 
