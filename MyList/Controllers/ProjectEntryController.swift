@@ -27,7 +27,7 @@ class ProjectEntryController: UIViewController {
         label.textColor = .black
         label.textAlignment = .left
         label.font = .font(size: 18, weight: .medium, design: .default) //UIFont(name: "Avenir-Heavy", size: 18)
-        label.text = "Project Name:"
+        label.text = "Project Name"
         label.numberOfLines = 1
         return label
     }()
@@ -49,6 +49,15 @@ class ProjectEntryController: UIViewController {
 //        textField.addTarget(self, action: #selector(textFieldDidChange(textField:)), for: .editingChanged)
         return textField
     }()
+    private lazy var colorLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .black
+        label.textAlignment = .left
+        label.font = .font(size: 18, weight: .medium, design: .default) //UIFont(name: "Avenir-Heavy", size: 18)
+        label.text = "Select Color"
+        label.numberOfLines = 1
+        return label
+    }()
     lazy var saveEditButton: UIBarButtonItem = {
         let title = project == nil ? "Save" : "Edit"
         let barButton = UIBarButtonItem(title: title, style: .plain, target: self, action: #selector(self.handleEditSaveProject))
@@ -66,7 +75,17 @@ class ProjectEntryController: UIViewController {
         setupNavigationBar()
         constraintNameLabel()
         constraintNameField()
+        constraintColorLabel()
         hideKeyboardOnTap()
+    }
+    
+    fileprivate func constraintColorLabel() {
+        view.addSubview(colorLabel)
+        (colorLabel).snp.makeConstraints { (make) in
+            make.top.equalTo(nameTextField.snp.bottom).offset(20)
+            make.left.equalTo(view.safeAreaLayoutGuide.snp.left).offset(16)
+            make.right.equalTo(view.safeAreaLayoutGuide.snp.right).offset(-16)
+        }
     }
     
     fileprivate func constraintNameField() {
