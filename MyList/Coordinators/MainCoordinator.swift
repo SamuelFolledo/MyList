@@ -29,11 +29,11 @@ class MainCoordinator: Coordinator {
         navigationController.pushViewController(vc, animated: false)
     }
     
-    func goToNewProject() {
-        let vc = NewProjectController()
+    func goToProjectEntry(project: Project?) {
+        let vc = ProjectEntryController()
         vc.coordinator = self
+        vc.project = project
         vc.view.backgroundColor = .white
-        vc.title = "New Project"
         navigationController.pushViewController(vc, animated: true)
     }
     
