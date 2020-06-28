@@ -11,6 +11,7 @@ import SnapKit
 
 class ProjectController: UIViewController {
     
+    weak var coordinator: MainCoordinator!
     var projects: [Project] = [] { didSet { tableView.reloadData() } }
     var filteredProjects: [Project] = [] { didSet { tableView.reloadData() } }
     
@@ -44,6 +45,7 @@ class ProjectController: UIViewController {
     fileprivate func setupViews() {
         setupNavigationBar()
         constraintTableView()
+        view.backgroundColor = .white
     }
     
     fileprivate func constraintTableView() {
@@ -58,7 +60,6 @@ class ProjectController: UIViewController {
     
     fileprivate func setupNavigationBar() {
         self.title = "Projects"
-        navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.rightBarButtonItem = newProjectButton
         navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = true
@@ -67,10 +68,7 @@ class ProjectController: UIViewController {
     
     //MARK: Helpers
     @objc func handleNewProject() {
-        let vc = NewProjectController()
-//        vc.chatRoomController = self
-        vc.modalPresentationStyle = .fullScreen
-        navigationController?.pushViewController(vc, animated: true)
+        coordinator!.goToNewProject()
     }
 }
 

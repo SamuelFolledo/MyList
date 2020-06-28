@@ -9,10 +9,12 @@
 import UIKit
 
 class NewProjectController: UIViewController {
-
+    
+    weak var coordinator: MainCoordinator?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .blue
+        view.backgroundColor = .white
     }
     
 
