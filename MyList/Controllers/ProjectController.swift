@@ -26,7 +26,7 @@ class ProjectController: UIViewController {
         return table
     }()
     lazy var newProjectButton: UIBarButtonItem = {
-        let barButton = UIBarButtonItem(title: "New Project", style: .plain, target: self, action: #selector(self.handleNewProject))
+        let barButton = UIBarButtonItem(title: "New", style: .plain, target: self, action: #selector(self.handleNewProject))
         return barButton
     }()
     lazy var searchController: UISearchController = {

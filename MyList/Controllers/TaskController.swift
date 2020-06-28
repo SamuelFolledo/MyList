@@ -23,8 +23,8 @@ class TaskController: UIViewController {
         table.register(TaskCell.self, forCellReuseIdentifier: String(describing: TaskCell.self))
         return table
     }()
-    lazy var newTaskButton: UIBarButtonItem = {
-        let barButton = UIBarButtonItem(title: "New Task", style: .plain, target: self, action: #selector(self.handleNewTask))
+    lazy var addTaskButton: UIBarButtonItem = {
+        let barButton = UIBarButtonItem(title: "Add Task", style: .plain, target: self, action: #selector(self.handleAddTask))
         return barButton
     }()
     
@@ -50,12 +50,12 @@ class TaskController: UIViewController {
     }
     
     fileprivate func setupNavigationBar() {
-        navigationItem.rightBarButtonItem = newTaskButton
+        navigationItem.rightBarButtonItem = addTaskButton
     }
     
     //MARK: Helpers
-    @objc func handleNewTask() {
-        print("New Task")
+    @objc func handleAddTask() {
+        print("Add Task")
     }
 }
 
