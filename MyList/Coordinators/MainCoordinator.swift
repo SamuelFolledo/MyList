@@ -52,10 +52,10 @@ class MainCoordinator: Coordinator {
     
     func goToTask(project: Project) {
         let vc = TaskController()
+        vc.project = project
         vc.coordinator = self
         vc.view.backgroundColor = .white
         vc.title = project.name
-        vc.project = project
         navigationController.pushViewController(vc, animated: true)
     }
 }
