@@ -11,6 +11,7 @@ import UIKit
 class ProjectCell: UITableViewCell { //is the UserCell we registered to our TableView
     
     //MARK: Properties
+    var project: Project!
     
     //MARK: View Properties
     lazy var mainStackView: UIStackView = {
@@ -25,7 +26,7 @@ class ProjectCell: UITableViewCell { //is the UserCell we registered to our Tabl
         let stackView: UIStackView = UIStackView()
         stackView.axis = .vertical
         stackView.alignment = .leading
-        stackView.distribution = .fillProportionally
+        stackView.distribution = .fill
         stackView.spacing = 5
         return stackView
     }()
@@ -55,15 +56,13 @@ class ProjectCell: UITableViewCell { //is the UserCell we registered to our Tabl
         label.isHidden = true
         return label
     }()
-    lazy var colorView: UIView = {
-        let view: UIView = UIView(frame: .zero)
-        view.isHidden = true
-        return view
+    lazy var colorView: ColorView = {
+        let colorView = ColorView(shape: .round, color: project.color, isFilled: false)
+        return colorView
     }()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: .subtitle, reuseIdentifier: reuseIdentifier)
-        self.setupViews()
     }
     
     required init?(coder: NSCoder) {
@@ -92,37 +91,39 @@ class ProjectCell: UITableViewCell { //is the UserCell we registered to our Tabl
         
         mainStackView.addArrangedSubview(colorView)
         colorView.snp.makeConstraints { (make) in
-            make.height.equalTo(30)
-            make.width.equalTo(30)
+            make.height.equalTo(40)
+            make.width.equalTo(40)
             make.centerY.equalToSuperview()
         }
         
         mainStackView.addArrangedSubview(verticalStackView)
         verticalStackView.snp.makeConstraints { (make) in
-            make.height.lessThanOrEqualToSuperview()
+            make.height.equalToSuperview()
             make.width.lessThanOrEqualToSuperview()
         }
         
         verticalStackView.addArrangedSubview(nameLabel)
         nameLabel.snp.makeConstraints { (make) in
-            make.height.equalTo(50)
+//            make.height.equalTo(50)
             make.width.equalToSuperview()
         }
         
         verticalStackView.addArrangedSubview(detailLabel)
         detailLabel.snp.makeConstraints { (make) in
-            make.height.equalTo(20)
+//            make.height.equalTo(20)
             make.width.equalToSuperview()
         }
         
         verticalStackView.addArrangedSubview(pendingTaskLabel)
         pendingTaskLabel.snp.makeConstraints { (make) in
-            make.height.equalTo(20)
+//            make.height.equalTo(20)
             make.width.equalToSuperview()
         }
     }
     
     func populateViews(project: Project) {
+        self.project = project
+        setupViews()
         nameLabel.text = project.name
         if project.detail != "" {
             detailLabel.isHidden = false
