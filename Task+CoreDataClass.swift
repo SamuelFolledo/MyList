@@ -2,7 +2,7 @@
 //  Task+CoreDataClass.swift
 //  MyList
 //
-//  Created by Samuel Folledo on 6/28/20.
+//  Created by Samuel Folledo on 6/29/20.
 //  Copyright © 2020 SamuelFolledo. All rights reserved.
 //
 //
