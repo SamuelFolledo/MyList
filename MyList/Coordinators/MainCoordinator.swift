@@ -55,6 +55,7 @@ class MainCoordinator: Coordinator {
         vc.coordinator = self
         vc.view.backgroundColor = .white
         vc.title = project.name
+        vc.project = project
         navigationController.pushViewController(vc, animated: true)
     }
 }
