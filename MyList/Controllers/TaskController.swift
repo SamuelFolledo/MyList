@@ -7,11 +7,14 @@
 //
 
 import UIKit
+import CoreData
 
 class TaskController: UIViewController {
     
     weak var coordinator: MainCoordinator!
     var tasks: [Task] = [] { didSet { tableView.reloadData() } }
+    var project: Project!
+    var childContext: NSManagedObjectContext!
     
     //MARK: Properties Views
     lazy var tableView: UITableView = {
@@ -27,6 +30,18 @@ class TaskController: UIViewController {
         let barButton = UIBarButtonItem(title: "Add Task", style: .plain, target: self, action: #selector(self.handleAddTask))
         return barButton
     }()
+    private lazy var segmentedControl: UISegmentedControl = {
+        let segmentedControl = UISegmentedControl(items: ["TODO", "DONE"])
+        segmentedControl.selectedSegmentIndex = 0
+        segmentedControl.layer.cornerRadius = 5
+        segmentedControl.backgroundColor = UIColor.white
+        segmentedControl.tintColor = .lightGray
+        segmentedControl.selectedSegmentTintColor = project.color 
+        segmentedControl.setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.black], for: .normal)
+        segmentedControl.setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.white], for: .selected)
+//        segmentedControl.addTarget(self, action: #selector(switchApplication), for: .valueChanged)
+        return segmentedControl
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,13 +51,20 @@ class TaskController: UIViewController {
     //MARK: Private Methods
     fileprivate func setupViews() {
         setupNavigationBar()
-        constraintTableView()
+        constraintViews()
     }
     
-    fileprivate func constraintTableView() {
+    fileprivate func constraintViews() {
+        self.view.addSubview(segmentedControl)
+        segmentedControl.snp.makeConstraints { (make) in
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.left.equalTo(view.safeAreaLayoutGuide.snp.left).offset(20)
+            make.right.equalTo(view.safeAreaLayoutGuide.snp.right).offset(20)
+        }
+        
         self.view.addSubview(tableView)
         tableView.snp.makeConstraints { (make) in
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.top.equalTo(segmentedControl.snp.bottom)
             make.left.equalTo(view.safeAreaLayoutGuide.snp.left)
             make.right.equalTo(view.safeAreaLayoutGuide.snp.right)
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
