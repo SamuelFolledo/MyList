@@ -122,7 +122,7 @@ class ProjectEntryController: UIViewController {
         guard let name = nameTextField.text, !name.isEmpty else { return }
         project.name = name
         project.detail = "No detail"
-        project.color = UIColor.blue
+        project.color = UIColor.red
         project.tasks = []
         project.lastOpenedDate = Date()
         project.taskLeft = 0
