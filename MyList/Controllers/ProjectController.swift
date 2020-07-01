@@ -13,7 +13,7 @@ import CoreData
 class ProjectController: UIViewController {
     
     weak var coordinator: MainCoordinator! {
-        didSet { fetchedResultsController = projectListFetchedResultsController() }
+        didSet { }//fetchedResultsController = projectListFetchedResultsController() }
     }
     var projects: [Project] = []
     var filteredProjects: [Project] = [] {
@@ -21,7 +21,42 @@ class ProjectController: UIViewController {
     }
     
     //MARK: Properties Views
-    lazy var fetchedResultsController: NSFetchedResultsController<Project> = NSFetchedResultsController()
+//    lazy var fetchedResultsController: NSFetchedResultsController<Project> = NSFetchedResultsController()
+    lazy var fetchedResultsController: NSFetchedResultsController<Project> = {
+        let fetchRequest: NSFetchRequest<Project> = Project.fetchRequest()
+        
+        let lastOpenedSort = NSSortDescriptor(key: "lastOpenedDate", ascending: true)
+        let nameSort = NSSortDescriptor(key: "name", ascending: true)
+        let taskLeftSort = NSSortDescriptor(key: "taskLeft", ascending: false)
+        fetchRequest.sortDescriptors = [lastOpenedSort, nameSort, taskLeftSort]
+        fetchRequest.fetchBatchSize = 20
+        let sortDescriptor = NSSortDescriptor(key: #keyPath(Project.lastOpenedDate), ascending: false)
+        fetchRequest.sortDescriptors = [sortDescriptor]
+//        return fetchRequest
+        
+        
+        guard let coreDataStack = (UIApplication.shared.delegate as? AppDelegate)?.coreDataStack else {
+            fatalError("Unable to read managed object context.")
+        }
+        let fetchedResultController = NSFetchedResultsController(fetchRequest: projectFetchRequest(),
+                                                                 managedObjectContext: coreDataStack.mainContext,
+                                                                 sectionNameKeyPath: nil,
+                                                                 cacheName: nil)
+//        fetchedResultController.delegate = self
+//        do {
+//            try fetchedResultController.performFetch()
+//        } catch let error as NSError {
+//            fatalError("Error: \(error.localizedDescription)")
+//        }
+//        return fetchedResultController
+        let fetchedResultsController = NSFetchedResultsController(
+            fetchRequest: fetchRequest,
+            managedObjectContext: coreDataStack.mainContext,
+            sectionNameKeyPath: #keyPath(Project.lastOpenedDate),
+            cacheName: nil)
+        fetchedResultsController.delegate = self //needed for Stretch Challenge #2 and #3
+        return fetchedResultsController
+    }()
     lazy var tableView: UITableView = {
         let table = UITableView()
         table.rowHeight = 100
@@ -59,6 +94,11 @@ class ProjectController: UIViewController {
     fileprivate func setupViews() {
         setupNavigationBar()
         constraintTableView()
+        do {
+            try fetchedResultsController.performFetch()
+        } catch {
+            print(error)
+        }
     }
     
     fileprivate func constraintTableView() {
@@ -106,6 +146,10 @@ private extension ProjectController {
     
     func projectFetchRequest() -> NSFetchRequest<Project> {
         let fetchRequest:NSFetchRequest<Project> = Project.fetchRequest()
+        let lastOpenedSort = NSSortDescriptor(key: "lastOpenedDate", ascending: true)
+        let nameSort = NSSortDescriptor(key: "name", ascending: true)
+        let taskLeftSort = NSSortDescriptor(key: "taskLeft", ascending: false)
+        fetchRequest.sortDescriptors = [lastOpenedSort, nameSort, taskLeftSort]
         fetchRequest.fetchBatchSize = 20
         let sortDescriptor = NSSortDescriptor(key: #keyPath(Project.lastOpenedDate), ascending: false)
         fetchRequest.sortDescriptors = [sortDescriptor]
@@ -162,8 +206,9 @@ extension ProjectController: NSFetchedResultsControllerDelegate {
     }
 }
 
-// MARK: TableView Delegate
+// MARK: TableViewDelegate
 extension ProjectController: UITableViewDelegate {
+    ///Did Select
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let project: Project!
         if searchController.isActive && searchController.searchBar.text != "" {
@@ -174,6 +219,7 @@ extension ProjectController: UITableViewDelegate {
         coordinator.goToTask(project: project)
     }
     
+    ///Swipe To Delete
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         guard case(.delete) = editingStyle else { return }
         let project = fetchedResultsController.object(at: indexPath)
@@ -183,9 +229,14 @@ extension ProjectController: UITableViewDelegate {
         coreDataStack.mainContext.delete(project)
         coreDataStack.saveContext()
     }
+    
+    //MARK: Split Sections by Continent
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return fetchedResultsController.sections?[section].name
+    }
 }
 
-// MARK: TableView DataSource
+// MARK: TableViewDataSource
 extension ProjectController: UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -196,7 +247,12 @@ extension ProjectController: UITableViewDataSource {
         if searchController.isActive && searchController.searchBar.text != "" {
             return filteredProjects.count
         } else {
-            return projects.count
+//            return projects.count
+            guard let sectionInfo =
+              fetchedResultsController.sections?[section] else {
+                return 0
+            }
+            return sectionInfo.numberOfObjects
         }
     }
     
