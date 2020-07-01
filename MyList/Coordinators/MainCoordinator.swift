@@ -65,7 +65,7 @@ private extension MainCoordinator {
         self.navigationController.isNavigationBarHidden = false
         self.navigationController.navigationBar.prefersLargeTitles = true
         self.navigationController.navigationBar.backgroundColor = .systemBackground
-        self.navigationController.navigationBar.tintColor = .red //button color
+        self.navigationController.navigationBar.tintColor = .systemBlue //button color
         //        navigationController.setStatusBarColor(backgroundColor: kMAINCOLOR)
     }
 }

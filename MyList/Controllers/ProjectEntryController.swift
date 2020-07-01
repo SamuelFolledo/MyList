@@ -80,7 +80,12 @@ class ProjectEntryController: UIViewController {
         constraintNameLabel()
         constraintNameField()
         constraintColorLabel()
+        constraintColorViews()
         hideKeyboardOnTap()
+    }
+    
+    fileprivate func constraintColorViews() {
+        
     }
     
     fileprivate func constraintColorLabel() {
