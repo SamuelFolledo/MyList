@@ -36,7 +36,6 @@ class CoreDataStack {
 extension CoreDataStack {
     func saveContext () {
         guard mainContext.hasChanges else { return }
-        
         do {
             try mainContext.save()
         } catch let nserror as NSError {
