@@ -17,12 +17,14 @@ class ColorView: UIView {
     let shape: Shape
     let color: UIColor
     let isFilled: Bool
+    let height: CGFloat
     
     //init with parameters
-    required init(shape: Shape, color: UIColor, isFilled: Bool) {
+    required init(shape: Shape, color: UIColor, isFilled: Bool, height: CGFloat) {
         self.shape = shape
         self.color = color
         self.isFilled = isFilled
+        self.height = height
         super.init(frame: .zero)
         setupView()
     }
@@ -37,7 +39,7 @@ class ColorView: UIView {
         layer.masksToBounds = true
         switch shape {
         case .round:
-            layer.cornerRadius = 20
+            layer.cornerRadius = height / 2
         case .square:
             layer.cornerRadius = 5
         }
