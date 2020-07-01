@@ -8,7 +8,7 @@
 
 import UIKit
 
-class TaskCell: UITableViewCell { //is the UserCell we registered to our TableView
+class TaskCell: UITableViewCell {
     
     //MARK: Properties
     
@@ -57,7 +57,6 @@ class TaskCell: UITableViewCell { //is the UserCell we registered to our TableVi
     }()
     lazy var colorView: UIView = {
         let view: UIView = UIView(frame: .zero)
-//        view.isHidden = true
         return view
     }()
     
@@ -121,18 +120,6 @@ class TaskCell: UITableViewCell { //is the UserCell we registered to our TableVi
     }
     
     func populateViews(task: Task) {
-//        userNameLabel.text = chatRoom.chatRoomName
-//        messageCounterStackView.isHidden = false
-//        lastMessageLabel.isHidden = false
-//        if chatRoom.lastMessage != "" {
-//            lastMessageLabel.text = chatRoom.lastMessage
-//        } else {
-//            lastMessageLabel.text = "???"
-//        }
-//        dateLabel.isHidden = false
-//        dateLabel.text = timeSinceNow(chatRoom.lastMessageDate)
-//        let currUserCounter = chatRoom.getCurrentUserCounter()
-//        counterLabel.isHidden = currUserCounter > 0 ? false : true
-//        counterLabel.text = currUserCounter < 100 ? "\(currUserCounter)" : "99+"
+        
     }
 }
