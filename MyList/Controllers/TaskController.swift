@@ -31,15 +31,16 @@ class TaskController: UIViewController {
         return barButton
     }()
     private lazy var segmentedControl: UISegmentedControl = {
-        let segmentedControl = UISegmentedControl(items: ["TODO", "DONE"])
+        let segmentedControl = UISegmentedControl(items: ["TO DO", "DONE"])
         segmentedControl.selectedSegmentIndex = 0
         segmentedControl.layer.cornerRadius = 5
-        segmentedControl.backgroundColor = UIColor.white
-        segmentedControl.tintColor = .lightGray
+        segmentedControl.backgroundColor = .systemBackground
+        segmentedControl.tintColor = .label
         segmentedControl.selectedSegmentTintColor = project.color 
-        segmentedControl.setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.black], for: .normal)
-        segmentedControl.setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.white], for: .selected)
-//        segmentedControl.addTarget(self, action: #selector(switchApplication), for: .valueChanged)
+        segmentedControl.setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel,
+                                                 NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18, weight: .bold)], for: .normal)
+        segmentedControl.setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.white,
+                                                 NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18, weight: .bold)], for: .selected)
         return segmentedControl
     }()
     
@@ -60,6 +61,7 @@ class TaskController: UIViewController {
             make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
             make.leading.equalTo(view.safeAreaLayoutGuide.snp.leading).offset(20)
             make.trailing.equalTo(view.safeAreaLayoutGuide.snp.trailing).offset(-20)
+            make.height.equalTo(40)
         }
         
         self.view.addSubview(tableView)
