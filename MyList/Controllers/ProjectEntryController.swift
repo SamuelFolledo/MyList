@@ -26,7 +26,7 @@ class ProjectEntryController: UIViewController {
         let label = UILabel()
         label.textColor = .label
         label.textAlignment = .left
-        label.font = .font(size: 18, weight: .medium, design: .default) //UIFont(name: "Avenir-Heavy", size: 18)
+        label.font = .font(size: 18, weight: .medium, design: .default)
         label.text = "Project Name"
         label.numberOfLines = 1
         return label
@@ -39,7 +39,7 @@ class ProjectEntryController: UIViewController {
         textField.textAlignment = NSTextAlignment.left
         textField.placeholder = "Name your project"
         textField.keyboardAppearance = UIKeyboardAppearance.default
-        textField.backgroundColor = UIColor.secondarySystemBackground //UIColor(r: 242, g: 242, b: 242, a: 1)
+        textField.backgroundColor = UIColor.secondarySystemBackground
         textField.keyboardType = .default
         textField.autocapitalizationType = .words
         textField.layer.cornerRadius = 10
@@ -52,7 +52,7 @@ class ProjectEntryController: UIViewController {
         let label = UILabel()
         label.textColor = .label
         label.textAlignment = .left
-        label.font = .font(size: 18, weight: .medium, design: .default) //UIFont(name: "Avenir-Heavy", size: 18)
+        label.font = .font(size: 18, weight: .medium, design: .default)
         label.text = "Select Color"
         label.numberOfLines = 1
         return label
@@ -61,6 +61,73 @@ class ProjectEntryController: UIViewController {
         let title = project == nil ? "Save" : "Edit"
         let barButton = UIBarButtonItem(title: title, style: .plain, target: self, action: #selector(self.handleSaveEditProject))
         return barButton
+    }()
+    lazy var scrollView: UIScrollView = {
+        let scrollView: UIScrollView = UIScrollView(frame: .zero)
+        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.showsVerticalScrollIndicator = false
+        return scrollView
+    }()
+    lazy var contentView: UIView = {
+        let view: UIView = UIView(frame: .zero)
+        view.backgroundColor = .clear
+        return view
+    }()
+    lazy var purpleView = ColorView(shape: .round, color: .systemPurple, isFilled: true, height: 60)
+    lazy var greenView = ColorView(shape: .round, color: .systemGreen, isFilled: true, height: 60)
+    lazy var blueView = ColorView(shape: .round, color: .systemBlue, isFilled: true, height: 60)
+    lazy var pinkView = ColorView(shape: .round, color: .systemPink, isFilled: true, height: 60)
+    lazy var orangeView = ColorView(shape: .round, color: .systemOrange, isFilled: true, height: 60)
+    lazy var redView = ColorView(shape: .round, color: .systemRed, isFilled: true, height: 60)
+    lazy var tealView = ColorView(shape: .round, color: .systemTeal, isFilled: true, height: 60)
+    lazy var indigoView = ColorView(shape: .round, color: .systemIndigo, isFilled: true, height: 60)
+    lazy var yellowView = ColorView(shape: .round, color: .systemYellow, isFilled: true, height: 60)
+    lazy var cyanView = ColorView(shape: .round, color: .cyan, isFilled: true, height: 60)
+    lazy var magentaView = ColorView(shape: .round, color: .magenta, isFilled: true, height: 60)
+    lazy var brownView = ColorView(shape: .round, color: .brown, isFilled: true, height: 60)
+    lazy var lightGrayView = ColorView(shape: .round, color: .opaqueSeparator, isFilled: true, height: 60)
+    lazy var mediumGrayView = ColorView(shape: .round, color: .lightGray, isFilled: true, height: 60)
+    lazy var grayView = ColorView(shape: .round, color: .gray, isFilled: true, height: 60)
+    lazy var darkGrayView = ColorView(shape: .round, color: .darkGray, isFilled: true, height: 60)
+    lazy var colorStackView: UIStackView = {
+        let stackView: UIStackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.alignment = .center
+        stackView.distribution = .fillEqually
+        stackView.spacing = 30
+        return stackView
+    }()
+    lazy var row1StackView: UIStackView = {
+        let stackView: UIStackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.alignment = .center
+        stackView.distribution = .fillEqually
+        stackView.spacing = 30
+        return stackView
+    }()
+    lazy var row2StackView: UIStackView = {
+        let stackView: UIStackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.alignment = .center
+        stackView.distribution = .fillEqually
+        stackView.spacing = 30
+        return stackView
+    }()
+    lazy var row3StackView: UIStackView = {
+        let stackView: UIStackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.alignment = .center
+        stackView.distribution = .fillEqually
+        stackView.spacing = 30
+        return stackView
+    }()
+    lazy var row4StackView: UIStackView = {
+        let stackView: UIStackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.alignment = .center
+        stackView.distribution = .fillEqually
+        stackView.spacing = 30
+        return stackView
     }()
     
     //MARK: App LifeCycle
@@ -77,42 +144,99 @@ class ProjectEntryController: UIViewController {
     // MARK: Private Methods
     fileprivate func setupViews() {
         setupNavigationBar()
+        constraintScrollView()
         constraintNameLabel()
         constraintNameField()
         constraintColorLabel()
-        constraintColorViews()
+        setupColorViews()
         hideKeyboardOnTap()
     }
     
-    fileprivate func constraintColorViews() {
+    fileprivate func setupColorViews() {
+        contentView.addSubview(colorStackView)
+        colorStackView.snp.makeConstraints { (make) in
+            make.top.equalTo(colorLabel.snp.bottom).offset(20)
+            make.centerX.equalToSuperview()
+        }
+        [row1StackView, row2StackView, row3StackView, row4StackView].forEach { //put each stackView inside colorStackView
+            colorStackView.addArrangedSubview($0)
+            $0.snp.makeConstraints { (make) in
+                make.height.equalTo(60)
+                make.width.equalTo(330)
+            }
+        }
+        [purpleView, greenView, blueView, pinkView].forEach {
+            row1StackView.addArrangedSubview($0)
+            $0.snp.makeConstraints { (make) in
+                make.height.equalToSuperview()
+            }
+        }
+        [orangeView, redView, tealView, indigoView].forEach {
+            row2StackView.addArrangedSubview($0)
+            $0.snp.makeConstraints { (make) in
+                make.height.equalToSuperview()
+            }
+        }
+        [cyanView, magentaView, brownView, yellowView].forEach {
+            row3StackView.addArrangedSubview($0)
+            $0.snp.makeConstraints { (make) in
+                make.height.equalToSuperview()
+            }
+        }
+        [lightGrayView, mediumGrayView, grayView, darkGrayView].forEach {
+            row4StackView.addArrangedSubview($0)
+            $0.snp.makeConstraints { (make) in
+                make.height.equalToSuperview()
+            }
+        }
+        let colorViews = [
+                purpleView, greenView, blueView, pinkView,
+                orangeView, redView, tealView, indigoView,
+                cyanView, magentaView, brownView, yellowView,
+                lightGrayView, mediumGrayView, grayView, darkGrayView
+            ]
         
     }
     
     fileprivate func constraintColorLabel() {
-        view.addSubview(colorLabel)
+        contentView.addSubview(colorLabel)
         (colorLabel).snp.makeConstraints { (make) in
             make.top.equalTo(nameTextField.snp.bottom).offset(20)
-            make.left.equalTo(view.safeAreaLayoutGuide.snp.left).offset(16)
-            make.right.equalTo(view.safeAreaLayoutGuide.snp.right).offset(-16)
+            make.leading.equalTo(contentView.snp.leading).offset(16)
+            make.trailing.equalTo(contentView.snp.trailing).offset(-16)
         }
     }
     
     fileprivate func constraintNameField() {
-        view.addSubview(nameTextField)
+        contentView.addSubview(nameTextField)
         nameTextField.snp.makeConstraints { (make) in
             make.top.equalTo(nameLabel.snp.bottom).offset(10)
-            make.left.equalTo(nameLabel.snp.left)
-            make.right.equalTo(nameLabel.snp.right)
+            make.leading.equalTo(nameLabel.snp.leading)
+            make.trailing.equalTo(nameLabel.snp.trailing)
             make.height.equalTo(45)
         }
     }
     
     fileprivate func constraintNameLabel() {
-        view.addSubview(nameLabel)
+        contentView.addSubview(nameLabel)
         (nameLabel).snp.makeConstraints { (make) in
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(10)
-            make.left.equalTo(view.safeAreaLayoutGuide.snp.left).offset(16)
-            make.right.equalTo(view.safeAreaLayoutGuide.snp.right).offset(-16)
+            make.top.equalTo(contentView.snp.top).offset(10)
+            make.leading.equalTo(contentView.snp.leading).offset(16)
+            make.trailing.equalTo(contentView.snp.trailing).offset(-16)
+        }
+    }
+    
+    fileprivate func constraintScrollView() {
+        view.addSubview(scrollView)
+        scrollView.snp.makeConstraints { (make) in
+            make.edges.equalTo(view)
+        }
+        scrollView.addSubview(contentView)
+        contentView.snp.makeConstraints { (make) in
+            make.top.bottom.equalTo(self.scrollView)
+            make.left.right.equalTo(self.view)
+            make.width.equalTo(self.scrollView)
+            make.height.equalTo(500)
         }
     }
     
