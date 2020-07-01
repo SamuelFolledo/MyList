@@ -104,9 +104,6 @@ class ProjectController: UIViewController {
 
 // MARK: NSFetchedResultsController Delegate
 extension ProjectController: NSFetchedResultsControllerDelegate {
-    //    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-    //        tableView.reloadData()
-    //    }
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         tableView.beginUpdates()
     }
@@ -138,7 +135,7 @@ extension ProjectController: NSFetchedResultsControllerDelegate {
         tableView.endUpdates()
     }
     
-    //Not needed but for inserting a new section
+    //Needed for inserting sections
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
         let indexSet = IndexSet(integer: sectionIndex)
         switch type {
@@ -166,13 +163,18 @@ extension ProjectController: UITableViewDelegate {
     
     ///Swipe To Delete
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        guard case(.delete) = editingStyle else { return }
-        let project = fetchedResultsController.object(at: indexPath)
         guard let coreDataStack = (UIApplication.shared.delegate as? AppDelegate)?.coreDataStack else {
             fatalError("Unable to read managed object context.")
         }
-        coreDataStack.mainContext.delete(project)
-        coreDataStack.saveContext()
+        switch editingStyle {
+        case .delete:
+            let project = fetchedResultsController.object(at: indexPath)
+            coreDataStack.mainContext.delete(project)
+            coreDataStack.saveContext()
+        case .insert:
+            print("Insert Editing Style not implemented")
+        default: break
+        }
     }
     
     //MARK: Split Sections by Continent
@@ -183,7 +185,6 @@ extension ProjectController: UITableViewDelegate {
 
 // MARK: TableViewDataSource
 extension ProjectController: UITableViewDataSource {
-    
     func numberOfSections(in tableView: UITableView) -> Int {
         return fetchedResultsController.sections?.count ?? 0
     }
