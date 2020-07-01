@@ -46,7 +46,6 @@ class ProjectEntryController: UIViewController {
         textField.clearButtonMode = .always
         textField.returnKeyType = .done
         textField.setPadding(left: 15, right: 15)
-//        textField.addTarget(self, action: #selector(textFieldDidChange(textField:)), for: .editingChanged)
         return textField
     }()
     private lazy var colorLabel: UILabel = {
