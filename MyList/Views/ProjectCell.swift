@@ -33,7 +33,7 @@ class ProjectCell: UITableViewCell { //is the UserCell we registered to our Tabl
     lazy var nameLabel: UILabel = {
         let label: UILabel = UILabel()
         label.font = .font(size: 20, weight: .bold, design: .default)
-        label.textColor = .black
+        label.textColor = .label
         label.numberOfLines = 2
         label.textAlignment = .left
         return label
@@ -41,7 +41,7 @@ class ProjectCell: UITableViewCell { //is the UserCell we registered to our Tabl
     lazy var detailLabel: UILabel = {
         let label: UILabel = UILabel()
         label.font = .font(size: 14, weight: .medium, design: .rounded)
-        label.textColor = .darkGray
+        label.textColor = .secondaryLabel
         label.numberOfLines = 1
         label.textAlignment = .left
         label.isHidden = true
