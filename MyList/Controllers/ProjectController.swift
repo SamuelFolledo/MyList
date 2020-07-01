@@ -90,8 +90,11 @@ class ProjectController: UIViewController {
 // MARK: NSFetchedResultsController
 private extension ProjectController {
     func projectListFetchedResultsController() -> NSFetchedResultsController<Project> {
+        guard let coreDataStack = (UIApplication.shared.delegate as? AppDelegate)?.coreDataStack else {
+            fatalError("Unable to read managed object context.")
+        }
         let fetchedResultController = NSFetchedResultsController(fetchRequest: projectFetchRequest(),
-                                                                 managedObjectContext: coordinator.coreDataStack.mainContext,
+                                                                 managedObjectContext: coreDataStack.mainContext,
                                                                  sectionNameKeyPath: nil,
                                                                  cacheName: nil)
         fetchedResultController.delegate = self
