@@ -17,7 +17,7 @@ extension Project {
         return NSFetchRequest<Project>(entityName: "Project")
     }
 
-    @NSManaged public var color: UIColor
+    @NSManaged public var color: UIColor?
     @NSManaged public var detail: String
     @NSManaged public var lastOpenedDate: Date
     @NSManaged public var name: String
