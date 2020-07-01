@@ -13,9 +13,7 @@ import CoreData
 class ProjectController: UIViewController {
     
     //MARK: Properties
-    weak var coordinator: MainCoordinator! {
-        didSet { }//fetchedResultsController = projectListFetchedResultsController() }
-    }
+    weak var coordinator: MainCoordinator!
     var projects: [Project] = []
     var filteredProjects: [Project] = [] {
         didSet { tableView.reloadData() }
@@ -25,13 +23,11 @@ class ProjectController: UIViewController {
     lazy var fetchedResultsController: NSFetchedResultsController<Project> = {
         //setup fetch request
         let fetchRequest: NSFetchRequest<Project> = Project.fetchRequest()
-        let lastOpenedSort = NSSortDescriptor(key: "lastOpenedDate", ascending: true)
-        let nameSort = NSSortDescriptor(key: "name", ascending: true)
+        let lastOpenedSort = NSSortDescriptor(key: "lastOpenedDate", ascending: false)
+        let nameSort = NSSortDescriptor(key: #keyPath(Project.name), ascending: true) //cleaner way
         let taskLeftSort = NSSortDescriptor(key: "taskLeft", ascending: false)
         fetchRequest.sortDescriptors = [lastOpenedSort, nameSort, taskLeftSort]
         fetchRequest.fetchBatchSize = 20
-//        let sortDescriptor = NSSortDescriptor(key: #keyPath(Project.lastOpenedDate), ascending: false) //another way
-//        fetchRequest.sortDescriptors = [sortDescriptor]
         //get CoreData's context
         guard let context = (UIApplication.shared.delegate as? AppDelegate)?.coreDataStack.mainContext else {
             fatalError("Unable to read managed object context.")
@@ -39,7 +35,7 @@ class ProjectController: UIViewController {
         //create fetchResultsController
         let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest,
                                                                   managedObjectContext: context,
-                                                                  sectionNameKeyPath: #keyPath(Project.lastOpenedDate),
+                                                                  sectionNameKeyPath: #keyPath(Project.isoDate),
                                                                   cacheName: nil)
         fetchedResultsController.delegate = self
         return fetchedResultsController
@@ -70,19 +66,13 @@ class ProjectController: UIViewController {
         setupViews()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        projects.removeAll()
-        guard let fetchedProjects = fetchedResultsController.fetchedObjects else { return }
-        projects = fetchedProjects
-    }
-    
     //MARK: Private Methods
     fileprivate func setupViews() {
         setupNavigationBar()
         constraintTableView()
         do {
             try fetchedResultsController.performFetch()
+            projects = fetchedResultsController.fetchedObjects!
         } catch {
             print(error)
         }
@@ -109,38 +99,6 @@ class ProjectController: UIViewController {
     //MARK: Helpers
     @objc func handleNewProject() {
         coordinator!.goToProjectEntry(project: nil)
-    }
-}
-
-// MARK: NSFetchedResultsController
-private extension ProjectController {
-    func projectListFetchedResultsController() -> NSFetchedResultsController<Project> {
-        guard let coreDataStack = (UIApplication.shared.delegate as? AppDelegate)?.coreDataStack else {
-            fatalError("Unable to read managed object context.")
-        }
-        let fetchedResultController = NSFetchedResultsController(fetchRequest: projectFetchRequest(),
-                                                                 managedObjectContext: coreDataStack.mainContext,
-                                                                 sectionNameKeyPath: nil,
-                                                                 cacheName: nil)
-        fetchedResultController.delegate = self
-        do {
-            try fetchedResultController.performFetch()
-        } catch let error as NSError {
-            fatalError("Error: \(error.localizedDescription)")
-        }
-        return fetchedResultController
-    }
-    
-    func projectFetchRequest() -> NSFetchRequest<Project> {
-        let fetchRequest:NSFetchRequest<Project> = Project.fetchRequest()
-        let lastOpenedSort = NSSortDescriptor(key: "lastOpenedDate", ascending: true)
-        let nameSort = NSSortDescriptor(key: "name", ascending: true)
-        let taskLeftSort = NSSortDescriptor(key: "taskLeft", ascending: false)
-        fetchRequest.sortDescriptors = [lastOpenedSort, nameSort, taskLeftSort]
-        fetchRequest.fetchBatchSize = 20
-        let sortDescriptor = NSSortDescriptor(key: #keyPath(Project.lastOpenedDate), ascending: false)
-        fetchRequest.sortDescriptors = [sortDescriptor]
-        return fetchRequest
     }
 }
 
@@ -234,12 +192,7 @@ extension ProjectController: UITableViewDataSource {
         if searchController.isActive && searchController.searchBar.text != "" {
             return filteredProjects.count
         } else {
-//            return projects.count
-            guard let sectionInfo =
-              fetchedResultsController.sections?[section] else {
-                return 0
-            }
-            return sectionInfo.numberOfObjects
+            return projects.count
         }
     }
     
