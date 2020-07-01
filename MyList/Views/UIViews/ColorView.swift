@@ -44,7 +44,7 @@ class ColorView: UIView {
             layer.cornerRadius = 5
         }
         layer.borderColor = color.cgColor
-        layer.borderWidth = 2
-        backgroundColor = isFilled ? color : .white
+        layer.borderWidth = 5
+        backgroundColor = isFilled ? color : .systemBackground
     }
 }

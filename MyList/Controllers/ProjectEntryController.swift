@@ -89,6 +89,7 @@ class ProjectEntryController: UIViewController {
     lazy var mediumGrayView = ColorView(shape: .round, color: .lightGray, isFilled: true, height: 60)
     lazy var grayView = ColorView(shape: .round, color: .gray, isFilled: true, height: 60)
     lazy var darkGrayView = ColorView(shape: .round, color: .darkGray, isFilled: true, height: 60)
+    lazy var colorViews: [ColorView] = []
     lazy var colorStackView: UIStackView = {
         let stackView: UIStackView = UIStackView()
         stackView.axis = .vertical
@@ -153,6 +154,13 @@ class ProjectEntryController: UIViewController {
     }
     
     fileprivate func setupColorViews() {
+        colorViews = [ //put all colorViews in one array
+            purpleView, greenView, blueView, pinkView,
+            orangeView, redView, tealView, indigoView,
+            cyanView, magentaView, brownView, yellowView,
+            lightGrayView, mediumGrayView, grayView, darkGrayView
+        ]
+        //begin colorViews constraints
         contentView.addSubview(colorStackView)
         colorStackView.snp.makeConstraints { (make) in
             make.top.equalTo(colorLabel.snp.bottom).offset(20)
@@ -189,13 +197,11 @@ class ProjectEntryController: UIViewController {
                 make.height.equalToSuperview()
             }
         }
-        let colorViews = [
-                purpleView, greenView, blueView, pinkView,
-                orangeView, redView, tealView, indigoView,
-                cyanView, magentaView, brownView, yellowView,
-                lightGrayView, mediumGrayView, grayView, darkGrayView
-            ]
-        
+        for colorView in colorViews { //add tap gesture to each colorView
+            colorView.isUserInteractionEnabled = true
+            let tap = UITapGestureRecognizer(target: self, action: #selector(self.colorViewTapped(_:)))
+            colorView.addGestureRecognizer(tap)
+        }
     }
     
     fileprivate func constraintColorLabel() {
@@ -227,11 +233,11 @@ class ProjectEntryController: UIViewController {
     }
     
     fileprivate func constraintScrollView() {
-        view.addSubview(scrollView)
+        view.addSubview(scrollView) //constraint scrollView
         scrollView.snp.makeConstraints { (make) in
             make.edges.equalTo(view)
         }
-        scrollView.addSubview(contentView)
+        scrollView.addSubview(contentView) //constraint contentView
         contentView.snp.makeConstraints { (make) in
             make.top.bottom.equalTo(self.scrollView)
             make.left.right.equalTo(self.view)
@@ -248,9 +254,12 @@ class ProjectEntryController: UIViewController {
     @objc func handleSaveEditProject() {
         guard let project = project else { return }
         guard let name = nameTextField.text, !name.isEmpty else { return }
+        if project.color == nil { //user did not select any colors
+            resetBorderOfColorViews(color: .red)
+            return
+        }
         project.name = name
         project.detail = "No detail"
-        project.color = UIColor.systemBlue
         project.tasks = []
         project.lastOpenedDate = Date()
         project.taskLeft = 0
@@ -260,6 +269,29 @@ class ProjectEntryController: UIViewController {
     func populateViewsWithProject() {
         guard let project = project else { return }
         nameTextField.text = project.name
+        for colorView in colorViews where colorView.color == project.color {
+            colorView.layer.borderColor = UIColor.label.cgColor
+        }
+    }
+    
+    ///clears the border of all colorViews
+    fileprivate func resetBorderOfColorViews(color: UIColor = UIColor.clear) {
+        for otherColorView in colorViews {
+            otherColorView.layer.borderColor = color.cgColor
+        }
+    }
+    
+    ///update project color with the sender's background color. Update favoriteColor and
+    @objc func colorViewTapped(_ gestureRecognizer: UIGestureRecognizer) {
+        guard let tappedColorView = gestureRecognizer.view as? ColorView else { return }
+        if tappedColorView.layer.borderColor != UIColor.label.cgColor { //if user selected a new color
+            resetBorderOfColorViews() //clear everything
+            project!.color = tappedColorView.color //assign project's color
+            tappedColorView.layer.borderColor = UIColor.label.cgColor //add border to colorView
+        } else { //if user selected this color already
+            tappedColorView.layer.borderColor = UIColor.clear.cgColor //clear the border
+            project!.color = nil
+        }
     }
 }
 

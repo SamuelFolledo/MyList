@@ -57,7 +57,7 @@ class ProjectCell: UITableViewCell { //is the UserCell we registered to our Tabl
         return label
     }()
     lazy var colorView: ColorView = {
-        let colorView = ColorView(shape: .round, color: project.color, isFilled: true, height: 40)
+        let colorView = ColorView(shape: .round, color: project.color!, isFilled: true, height: 40)
         return colorView
     }()
     

@@ -15,9 +15,7 @@ class ProjectController: UIViewController {
     weak var coordinator: MainCoordinator! {
         didSet { fetchedResultsController = projectListFetchedResultsController() }
     }
-    var projects: [Project] = [] {
-        didSet { tableView.reloadData() }
-    }
+    var projects: [Project] = []
     var filteredProjects: [Project] = [] {
         didSet { tableView.reloadData() }
     }
@@ -117,8 +115,50 @@ private extension ProjectController {
 
 // MARK: NSFetchedResultsController Delegate
 extension ProjectController: NSFetchedResultsControllerDelegate {
+    //    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+    //        tableView.reloadData()
+    //    }
+    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        tableView.beginUpdates()
+    }
+    
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>,
+                    didChange anObject: Any,
+                    at indexPath: IndexPath?,
+                    for type: NSFetchedResultsChangeType,
+                    newIndexPath: IndexPath?) {
+        switch type {
+        case .insert:
+            guard let project = anObject as? Project else { return }
+            projects.insert(project, at: newIndexPath!.row)
+            tableView.insertRows(at: [newIndexPath!], with: .automatic)
+        case .delete:
+            projects.remove(at: indexPath!.row)
+            tableView.deleteRows(at: [indexPath!], with: .automatic)
+        case .update:
+            let cell = tableView.cellForRow(at: indexPath!) as! ProjectCell
+            configure(cell: cell, for: indexPath!)
+        case .move:
+            tableView.deleteRows(at: [indexPath!], with: .automatic)
+            tableView.insertRows(at: [newIndexPath!], with: .automatic)
+        default: break
+        }
+    }
+    
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        tableView.reloadData()
+        tableView.endUpdates()
+    }
+    
+    //Not needed but for inserting a new section
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
+        let indexSet = IndexSet(integer: sectionIndex)
+        switch type {
+        case .insert:
+            tableView.insertSections(indexSet, with: .automatic)
+        case .delete:
+            tableView.deleteSections(indexSet, with: .automatic)
+        default: break
+        }
     }
 }
 
@@ -132,6 +172,16 @@ extension ProjectController: UITableViewDelegate {
             project = projects[indexPath.row]
         }
         coordinator.goToTask(project: project)
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        guard case(.delete) = editingStyle else { return }
+        let project = fetchedResultsController.object(at: indexPath)
+        guard let coreDataStack = (UIApplication.shared.delegate as? AppDelegate)?.coreDataStack else {
+            fatalError("Unable to read managed object context.")
+        }
+        coreDataStack.mainContext.delete(project)
+        coreDataStack.saveContext()
     }
 }
 
@@ -152,14 +202,17 @@ extension ProjectController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: ProjectCell = tableView.dequeueReusableCell(withIdentifier: String(describing: ProjectCell.self), for: indexPath) as! ProjectCell
-        let project: Project!
-        if searchController.isActive && searchController.searchBar.text != "" {
-            project = filteredProjects[indexPath.row]
-        } else {
-            project = projects[indexPath.row]
-        }
-        cell.populateViews(project: project)
+        configure(cell: cell, for: indexPath)
         return cell
+    }
+}
+
+// MARK: - Internal
+extension ProjectController {
+    func configure(cell: UITableViewCell, for indexPath: IndexPath) {
+        guard let cell = cell as? ProjectCell else { return }
+        let project = fetchedResultsController.object(at: indexPath)
+        cell.populateViews(project: project)
     }
 }
 
