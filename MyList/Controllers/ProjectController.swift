@@ -12,6 +12,7 @@ import CoreData
 
 class ProjectController: UIViewController {
     
+    //MARK: Properties
     weak var coordinator: MainCoordinator! {
         didSet { }//fetchedResultsController = projectListFetchedResultsController() }
     }
@@ -21,40 +22,26 @@ class ProjectController: UIViewController {
     }
     
     //MARK: Properties Views
-//    lazy var fetchedResultsController: NSFetchedResultsController<Project> = NSFetchedResultsController()
     lazy var fetchedResultsController: NSFetchedResultsController<Project> = {
+        //setup fetch request
         let fetchRequest: NSFetchRequest<Project> = Project.fetchRequest()
-        
         let lastOpenedSort = NSSortDescriptor(key: "lastOpenedDate", ascending: true)
         let nameSort = NSSortDescriptor(key: "name", ascending: true)
         let taskLeftSort = NSSortDescriptor(key: "taskLeft", ascending: false)
         fetchRequest.sortDescriptors = [lastOpenedSort, nameSort, taskLeftSort]
         fetchRequest.fetchBatchSize = 20
-        let sortDescriptor = NSSortDescriptor(key: #keyPath(Project.lastOpenedDate), ascending: false)
-        fetchRequest.sortDescriptors = [sortDescriptor]
-//        return fetchRequest
-        
-        
-        guard let coreDataStack = (UIApplication.shared.delegate as? AppDelegate)?.coreDataStack else {
+//        let sortDescriptor = NSSortDescriptor(key: #keyPath(Project.lastOpenedDate), ascending: false) //another way
+//        fetchRequest.sortDescriptors = [sortDescriptor]
+        //get CoreData's context
+        guard let context = (UIApplication.shared.delegate as? AppDelegate)?.coreDataStack.mainContext else {
             fatalError("Unable to read managed object context.")
         }
-        let fetchedResultController = NSFetchedResultsController(fetchRequest: projectFetchRequest(),
-                                                                 managedObjectContext: coreDataStack.mainContext,
-                                                                 sectionNameKeyPath: nil,
-                                                                 cacheName: nil)
-//        fetchedResultController.delegate = self
-//        do {
-//            try fetchedResultController.performFetch()
-//        } catch let error as NSError {
-//            fatalError("Error: \(error.localizedDescription)")
-//        }
-//        return fetchedResultController
-        let fetchedResultsController = NSFetchedResultsController(
-            fetchRequest: fetchRequest,
-            managedObjectContext: coreDataStack.mainContext,
-            sectionNameKeyPath: #keyPath(Project.lastOpenedDate),
-            cacheName: nil)
-        fetchedResultsController.delegate = self //needed for Stretch Challenge #2 and #3
+        //create fetchResultsController
+        let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest,
+                                                                  managedObjectContext: context,
+                                                                  sectionNameKeyPath: #keyPath(Project.lastOpenedDate),
+                                                                  cacheName: nil)
+        fetchedResultsController.delegate = self
         return fetchedResultsController
     }()
     lazy var tableView: UITableView = {
