@@ -24,7 +24,7 @@ class ProjectEntryController: UIViewController {
     //MARK: Views
     private lazy var nameLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = .label
         label.textAlignment = .left
         label.font = .font(size: 18, weight: .medium, design: .default) //UIFont(name: "Avenir-Heavy", size: 18)
         label.text = "Project Name"
@@ -35,11 +35,11 @@ class ProjectEntryController: UIViewController {
         let textField = UITextField()
         textField.delegate = self
         textField.font = .font(size: 18, weight: .medium, design: .rounded)
-        textField.textColor = .black
+        textField.textColor = .label
         textField.textAlignment = NSTextAlignment.left
         textField.placeholder = "Name your project"
         textField.keyboardAppearance = UIKeyboardAppearance.default
-        textField.backgroundColor = UIColor(r: 242, g: 242, b: 242, a: 1)
+        textField.backgroundColor = UIColor.secondarySystemBackground //UIColor(r: 242, g: 242, b: 242, a: 1)
         textField.keyboardType = .default
         textField.autocapitalizationType = .words
         textField.layer.cornerRadius = 10
@@ -50,7 +50,7 @@ class ProjectEntryController: UIViewController {
     }()
     private lazy var colorLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = .label
         label.textAlignment = .left
         label.font = .font(size: 18, weight: .medium, design: .default) //UIFont(name: "Avenir-Heavy", size: 18)
         label.text = "Select Color"
@@ -121,7 +121,7 @@ class ProjectEntryController: UIViewController {
         guard let name = nameTextField.text, !name.isEmpty else { return }
         project.name = name
         project.detail = "No detail"
-        project.color = UIColor.red
+        project.color = UIColor.systemBlue
         project.tasks = []
         project.lastOpenedDate = Date()
         project.taskLeft = 0
