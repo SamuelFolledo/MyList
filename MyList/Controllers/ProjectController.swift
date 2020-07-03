@@ -159,22 +159,28 @@ extension ProjectController: UITableViewDelegate {
         } else {
             project = fetchedResultsController.object(at: indexPath)
         }
-        project.lastOpenedDate = Date()
+        project.lastOpenedDate = Date() //update project's lastOpenedDate when tapped
         coreDataStack.saveContext()
         coordinator.goToTask(project: project)
     }
-    ///Swipe To Delete
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        switch editingStyle {
-        case .delete:
-            let project = fetchedResultsController.object(at: indexPath)
-            coreDataStack.mainContext.delete(project)
-            coreDataStack.saveContext()
-        case .insert:
-            print("Insert Editing Style not implemented")
-        default: break
+    ///Newer Swipe To Delete or Edit
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        var selectedProject: Project! //get the project to update or delete
+        if self.searchController.isActive && !self.searchController.searchBar.text!.isEmpty {
+            selectedProject = self.filteredProjects[indexPath.row]
+        } else {
+            selectedProject = self.fetchedResultsController.object(at: indexPath)
         }
+        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { (action, view, completion: @escaping ( Bool) -> Void) in
+            self.coreDataStack.mainContext.delete(selectedProject)
+            self.coreDataStack.saveContext()
+        }
+        let editAction = UIContextualAction(style: .normal, title: "Edit") { (action, view, completion: @escaping ( Bool) -> Void) in
+            self.coordinator.goToProjectEntry(project: selectedProject)
+        }
+        return UISwipeActionsConfiguration(actions: [deleteAction, editAction])
     }
+    
     ///Title for each sections
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         if searchController.isActive && searchController.searchBar.text != "" {
