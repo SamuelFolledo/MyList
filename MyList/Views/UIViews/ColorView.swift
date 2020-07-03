@@ -15,9 +15,17 @@ class ColorView: UIView {
     }
     
     var shape: Shape
-    var color: UIColor { didSet { backgroundColor = color } }
+    var color: UIColor {
+        didSet { backgroundColor = color }
+    }
     var isFilled: Bool
     var height: CGFloat
+    var isSelected: Bool = false {
+        didSet { isSelected ? addOuterBorder(borderWidth: 4, borderColor: UIColor.label) : removeOuterBorders() }
+    }
+    var hasError: Bool = false {
+        didSet { hasError ? addOuterBorder(borderWidth: 4, borderColor: UIColor.systemRed) : removeOuterBorders() }
+    }
     
     //init with parameters
     required init(shape: Shape, color: UIColor, isFilled: Bool, height: CGFloat) {
@@ -35,15 +43,12 @@ class ColorView: UIView {
     }
     
     fileprivate func setupView() {
-        layer.masksToBounds = true
         switch shape {
         case .round:
             layer.cornerRadius = height / 2
         case .square:
             layer.cornerRadius = 5
         }
-        layer.borderColor = UIColor.clear.cgColor
-        layer.borderWidth = 5
         backgroundColor = isFilled ? color : .clear
     }
 }
