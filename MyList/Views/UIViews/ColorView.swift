@@ -15,7 +15,7 @@ class ColorView: UIView {
     }
     
     var shape: Shape
-    var color: UIColor
+    var color: UIColor { didSet { backgroundColor = color } }
     var isFilled: Bool
     var height: CGFloat
     
@@ -32,11 +32,6 @@ class ColorView: UIView {
     //initWithCode to init view from xib or storyboard
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        backgroundColor = isFilled ? color : .clear
     }
     
     fileprivate func setupView() {

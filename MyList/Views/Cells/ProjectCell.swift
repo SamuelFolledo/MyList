@@ -79,6 +79,7 @@ class ProjectCell: UITableViewCell {
         detailLabel.isHidden = true
         pendingTaskLabel.text = ""
         pendingTaskLabel.isHidden = true
+        colorView.color = .clear
     }
     
     //MARK: Private Methods
