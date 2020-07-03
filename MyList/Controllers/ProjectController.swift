@@ -161,7 +161,7 @@ extension ProjectController: UITableViewDelegate {
         if searchController.isActive && searchController.searchBar.text != "" {
             project = filteredProjects[indexPath.row]
         } else {
-            project = projects[indexPath.row]
+            project = fetchedResultsController.object(at: indexPath)
         }
         coordinator.goToTask(project: project)
     }
