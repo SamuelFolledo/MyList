@@ -14,6 +14,7 @@ class ProjectController: UIViewController {
     
     //MARK: Properties
     weak var coordinator: MainCoordinator!
+    weak var coreDataStack: CoreDataStack!
     var projects: [Project] = []
     var filteredProjects: [Project] = [] {
         didSet { tableView.reloadData() }
@@ -28,13 +29,9 @@ class ProjectController: UIViewController {
         let taskLeftSort = NSSortDescriptor(key: "taskLeft", ascending: false)
         fetchRequest.sortDescriptors = [lastOpenedSort, nameSort, taskLeftSort]
         fetchRequest.fetchBatchSize = 20
-        //get CoreData's context
-        guard let context = (UIApplication.shared.delegate as? AppDelegate)?.coreDataStack.mainContext else {
-            fatalError("Unable to read managed object context.")
-        }
         //create fetchResultsController
         let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest,
-                                                                  managedObjectContext: context,
+                                                                  managedObjectContext: coreDataStack.mainContext,
                                                                   sectionNameKeyPath: #keyPath(Project.isoDate),
                                                                   cacheName: nil)
         fetchedResultsController.delegate = self
@@ -68,6 +65,7 @@ class ProjectController: UIViewController {
     
     //MARK: Private Methods
     fileprivate func setupViews() {
+        view.backgroundColor = .systemBackground
         setupNavigationBar()
         constraintTableView()
         do {
@@ -163,9 +161,6 @@ extension ProjectController: UITableViewDelegate {
     
     ///Swipe To Delete
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        guard let coreDataStack = (UIApplication.shared.delegate as? AppDelegate)?.coreDataStack else {
-            fatalError("Unable to read managed object context.")
-        }
         switch editingStyle {
         case .delete:
             let project = fetchedResultsController.object(at: indexPath)

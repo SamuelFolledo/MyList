@@ -12,19 +12,22 @@ import CoreData
 class MainCoordinator: Coordinator {
     
     //MARK: Properties
+    weak var coreDataStack: CoreDataStack!
     var childCoordinators: [Coordinator] = []
     lazy var navigationController: UINavigationController = UINavigationController()
     
     //MARK: Init
     init(window: UIWindow) {
         window.rootViewController = navigationController
+        guard let coreDataStack = (UIApplication.shared.delegate as? AppDelegate)?.coreDataStack else { fatalError("No Core Data Stack") }
+        self.coreDataStack = coreDataStack
         setupNavigationController()
     }
     
     //MARK: Methods
     func start() {
         let vc = ProjectController()
-        vc.view.backgroundColor = .systemBackground
+        vc.coreDataStack = self.coreDataStack
         vc.coordinator = self //assign vc's coordinator to self
         navigationController.pushViewController(vc, animated: false)
     }
@@ -35,7 +38,7 @@ class MainCoordinator: Coordinator {
         vc.view.backgroundColor = .systemBackground
         vc.delegate = self
         let childContext = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
-        childContext.parent = (UIApplication.shared.delegate as? AppDelegate)?.coreDataStack.mainContext
+        childContext.parent = coreDataStack.mainContext
         vc.childContext = childContext
         if project == nil { //new project
             let newProject = Project(context: childContext)
@@ -82,7 +85,7 @@ extension MainCoordinator: ProjectEntryDelegate {
             } catch let error as NSError {
                 fatalError("Error: \(error.localizedDescription)")
             }
-            (UIApplication.shared.delegate as? AppDelegate)?.coreDataStack.saveContext()
+            self.coreDataStack.saveContext()
         }
         navigationController.popViewController(animated: true)
     }
