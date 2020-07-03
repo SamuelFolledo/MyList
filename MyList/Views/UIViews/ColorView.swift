@@ -14,7 +14,7 @@ class ColorView: UIView {
         case round, square
     }
     
-    let shape: Shape
+    var shape: Shape
     var color: UIColor
     var isFilled: Bool
     var height: CGFloat
@@ -34,6 +34,11 @@ class ColorView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        backgroundColor = isFilled ? color : .clear
+    }
+    
     fileprivate func setupView() {
         layer.masksToBounds = true
         switch shape {
@@ -42,8 +47,8 @@ class ColorView: UIView {
         case .square:
             layer.cornerRadius = 5
         }
-        layer.borderColor = color.cgColor
+        layer.borderColor = UIColor.clear.cgColor
         layer.borderWidth = 5
-        backgroundColor = isFilled ? color : .systemBackground
+        backgroundColor = isFilled ? color : .clear
     }
 }
