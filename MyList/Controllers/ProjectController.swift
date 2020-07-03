@@ -76,7 +76,6 @@ class ProjectController: UIViewController {
             print(error)
         }
     }
-    
     fileprivate func constraintTableView() {
         self.view.addSubview(tableView)
         tableView.snp.makeConstraints { (make) in
@@ -86,7 +85,6 @@ class ProjectController: UIViewController {
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
     }
-    
     fileprivate func setupNavigationBar() {
         self.title = "Projects"
         navigationItem.rightBarButtonItem = newProjectButton
@@ -106,7 +104,6 @@ extension ProjectController: NSFetchedResultsControllerDelegate {
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         tableView.beginUpdates()
     }
-    
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>,
                     didChange anObject: Any,
                     at indexPath: IndexPath?,
@@ -130,11 +127,9 @@ extension ProjectController: NSFetchedResultsControllerDelegate {
         default: break
         }
     }
-    
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         tableView.endUpdates()
     }
-    
     //Needed for updating sections
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
         let indexSet = IndexSet(integer: sectionIndex)
@@ -166,7 +161,6 @@ extension ProjectController: UITableViewDelegate {
         }
         coordinator.goToTask(project: project)
     }
-    
     ///Swipe To Delete
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         switch editingStyle {
@@ -179,8 +173,7 @@ extension ProjectController: UITableViewDelegate {
         default: break
         }
     }
-    
-    //MARK: Split Sections by Continent
+    ///Title for each sections
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         if searchController.isActive && searchController.searchBar.text != "" {
             return nil //no section title when searching
@@ -199,7 +192,6 @@ extension ProjectController: UITableViewDataSource {
             return fetchedResultsController.sections?.count ?? 0
         }
     }
-    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if searchController.isActive && searchController.searchBar.text != "" {
             return filteredProjects.count
@@ -207,7 +199,6 @@ extension ProjectController: UITableViewDataSource {
             return fetchedResultsController.sections![section].numberOfObjects //current section's number of rows
         }
     }
-    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: ProjectCell = tableView.dequeueReusableCell(withIdentifier: String(describing: ProjectCell.self), for: indexPath) as! ProjectCell
         configure(cell: cell, for: indexPath)
@@ -234,7 +225,6 @@ extension ProjectController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         filterContentForSearchText(searchText: searchController.searchBar.text!)
     }
-    
     //MARK: Private Search Method
     func filterContentForSearchText(searchText: String, scope: String = "All") {
         filteredProjects = projects.filter({ (project) -> Bool in
