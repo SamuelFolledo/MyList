@@ -53,6 +53,7 @@ class ProjectController: UIViewController {
     lazy var searchController: UISearchController = {
         let searchController = UISearchController(searchResultsController: nil)
         searchController.searchResultsUpdater = self
+        searchController.obscuresBackgroundDuringPresentation = false //needed to select row and not reset search text
         self.definesPresentationContext = true
         return searchController
     }()
