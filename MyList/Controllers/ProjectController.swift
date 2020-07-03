@@ -159,6 +159,8 @@ extension ProjectController: UITableViewDelegate {
         } else {
             project = fetchedResultsController.object(at: indexPath)
         }
+        project.lastOpenedDate = Date()
+        coreDataStack.saveContext()
         coordinator.goToTask(project: project)
     }
     ///Swipe To Delete
