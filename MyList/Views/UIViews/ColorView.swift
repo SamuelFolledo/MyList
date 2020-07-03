@@ -15,9 +15,9 @@ class ColorView: UIView {
     }
     
     let shape: Shape
-    let color: UIColor
-    let isFilled: Bool
-    let height: CGFloat
+    var color: UIColor
+    var isFilled: Bool
+    var height: CGFloat
     
     //init with parameters
     required init(shape: Shape, color: UIColor, isFilled: Bool, height: CGFloat) {
@@ -28,7 +28,6 @@ class ColorView: UIView {
         super.init(frame: .zero)
         setupView()
     }
-    
     
     //initWithCode to init view from xib or storyboard
     required init?(coder aDecoder: NSCoder) {
