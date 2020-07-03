@@ -203,7 +203,7 @@ extension ProjectController: UITableViewDataSource {
         if searchController.isActive && searchController.searchBar.text != "" {
             return filteredProjects.count
         } else {
-            return fetchedResultsController.sections![section].numberOfObjects
+            return fetchedResultsController.sections![section].numberOfObjects //current section's number of rows
         }
     }
     
@@ -218,8 +218,13 @@ extension ProjectController: UITableViewDataSource {
 extension ProjectController {
     func configure(cell: UITableViewCell, for indexPath: IndexPath) {
         guard let cell = cell as? ProjectCell else { return }
-        let project = fetchedResultsController.object(at: indexPath)
-        cell.populateViews(project: project)
+        var project: Project!
+        if searchController.isActive && searchController.searchBar.text != "" {
+            project = filteredProjects[indexPath.row]
+        } else {
+            project = fetchedResultsController.object(at: indexPath)
+        }
+        cell.project = project
     }
 }
 
@@ -232,6 +237,7 @@ extension ProjectController: UISearchResultsUpdating {
     //MARK: Private Search Method
     func filterContentForSearchText(searchText: String, scope: String = "All") {
         filteredProjects = projects.filter({ (project) -> Bool in
+            ////lower case both text then compare if searchText contains name or detail
             return project.name.lowercased().contains(searchText.lowercased())
                 || project.detail.lowercased().contains(searchText.lowercased())
         })
