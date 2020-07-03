@@ -152,6 +152,7 @@ class ProjectEntryController: UIViewController {
     }
     
     fileprivate func setupViews() {
+        view.backgroundColor = .systemBackground
         setupNavigationBar()
         constraintScrollView()
         constraintNameLabel()

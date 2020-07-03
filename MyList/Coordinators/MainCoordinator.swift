@@ -32,11 +32,10 @@ class MainCoordinator: Coordinator {
         navigationController.pushViewController(vc, animated: false)
     }
     
-    func goToProjectEntry(project: Project?) {
+    func goToProjectEntry(fromVC: UIViewController, project: Project?) {
         let vc = ProjectEntryController()
+        vc.delegate = (fromVC as! ProjectEntryDelegate)
         vc.coordinator = self
-        vc.view.backgroundColor = .systemBackground
-        vc.delegate = self
         let childContext = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
         childContext.parent = coreDataStack.mainContext
         vc.childContext = childContext
@@ -70,23 +69,5 @@ private extension MainCoordinator {
         self.navigationController.navigationBar.backgroundColor = .systemBackground
         self.navigationController.navigationBar.tintColor = .systemBlue //button color
         //        navigationController.setStatusBarColor(backgroundColor: kMAINCOLOR)
-    }
-}
-
-extension MainCoordinator: ProjectEntryDelegate {
-    func didSaveProject(vc: ProjectEntryController, didSave: Bool) {
-        guard didSave, let context = vc.childContext, context.hasChanges else {
-            navigationController.popViewController(animated: true)
-            return
-        }
-        context.perform {
-            do {
-                try context.save()
-            } catch let error as NSError {
-                fatalError("Error: \(error.localizedDescription)")
-            }
-            self.coreDataStack.saveContext()
-        }
-        navigationController.popViewController(animated: true)
     }
 }

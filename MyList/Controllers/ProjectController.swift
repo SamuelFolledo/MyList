@@ -95,7 +95,7 @@ class ProjectController: UIViewController {
     
     //MARK: Helpers
     @objc func handleNewProject() {
-        coordinator!.goToProjectEntry(project: nil)
+        coordinator.goToProjectEntry(fromVC: self, project: nil)
     }
 }
 
@@ -176,7 +176,7 @@ extension ProjectController: UITableViewDelegate {
             self.coreDataStack.saveContext()
         }
         let editAction = UIContextualAction(style: .normal, title: "Edit") { (action, view, completion: @escaping ( Bool) -> Void) in
-            self.coordinator.goToProjectEntry(project: selectedProject)
+            self.coordinator.goToProjectEntry(fromVC: self, project: selectedProject)
         }
         return UISwipeActionsConfiguration(actions: [deleteAction, editAction])
     }
@@ -240,5 +240,24 @@ extension ProjectController: UISearchResultsUpdating {
             return project.name.lowercased().contains(searchText.lowercased())
                 || project.detail.lowercased().contains(searchText.lowercased())
         })
+    }
+}
+
+extension ProjectController: ProjectEntryDelegate {
+    func didSaveProject(vc: ProjectEntryController, didSave: Bool) {
+        guard didSave, let context = vc.childContext, context.hasChanges else {
+            vc.navigationController?.popViewController(animated: true)
+            return
+        }
+        context.perform {
+            do {
+                try context.save()
+            } catch let error as NSError {
+                fatalError("Error: \(error.localizedDescription)")
+            }
+            
+            self.coreDataStack.saveContext()
+        }
+        vc.navigationController?.popViewController(animated: true)
     }
 }
