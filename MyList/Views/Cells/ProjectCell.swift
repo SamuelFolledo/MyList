@@ -8,17 +8,15 @@
 
 import UIKit
 
-class ProjectCell: UITableViewCell { //is the UserCell we registered to our TableView
+class ProjectCell: UITableViewCell {
     
     //MARK: Properties
     var project: Project! {
-        didSet {
-            setupViews()
-        }
+        didSet { populateViews() }
     }
     
     //MARK: View Properties
-    lazy var mainStackView: UIStackView = {
+    lazy var mainStackView: UIStackView = { //will contain colorView and verticalStackView
         let stackView: UIStackView = UIStackView()
         stackView.axis = .horizontal
         stackView.alignment = .center
@@ -40,7 +38,6 @@ class ProjectCell: UITableViewCell { //is the UserCell we registered to our Tabl
         label.textColor = .label
         label.numberOfLines = 2
         label.textAlignment = .left
-        label.text = project.name
         return label
     }()
     lazy var detailLabel: UILabel = {
@@ -50,10 +47,6 @@ class ProjectCell: UITableViewCell { //is the UserCell we registered to our Tabl
         label.numberOfLines = 1
         label.textAlignment = .left
         label.isHidden = true
-        if project.detail != "" {
-            label.isHidden = false
-            label.text = project.detail
-        }
         return label
     }()
     lazy var pendingTaskLabel: UILabel = {
@@ -63,20 +56,16 @@ class ProjectCell: UITableViewCell { //is the UserCell we registered to our Tabl
         label.numberOfLines = 1
         label.textAlignment = .left
         label.isHidden = true
-        if project.taskLeft > 0 {
-            label.isHidden = false
-            let taskLeftString: String = project.taskLeft == 0 ? "task left" : "tasks left"
-            label.text = "\(project.taskLeft) \(taskLeftString)"
-        }
         return label
     }()
     lazy var colorView: ColorView = {
-        let colorView = ColorView(shape: .round, color: project.color!, isFilled: true, height: 40)
+        let colorView = ColorView(shape: .round, color: .clear, isFilled: true, height: 40)
         return colorView
     }()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: .subtitle, reuseIdentifier: reuseIdentifier)
+        setupViews()
     }
     
     required init?(coder: NSCoder) {
@@ -90,7 +79,6 @@ class ProjectCell: UITableViewCell { //is the UserCell we registered to our Tabl
         detailLabel.isHidden = true
         pendingTaskLabel.text = ""
         pendingTaskLabel.isHidden = true
-        colorView.color = .clear
     }
     
     //MARK: Private Methods
@@ -119,24 +107,31 @@ class ProjectCell: UITableViewCell { //is the UserCell we registered to our Tabl
         
         verticalStackView.addArrangedSubview(nameLabel)
         nameLabel.snp.makeConstraints { (make) in
-//            make.height.equalTo(50)
             make.width.equalToSuperview()
         }
         
         verticalStackView.addArrangedSubview(detailLabel)
         detailLabel.snp.makeConstraints { (make) in
-//            make.height.equalTo(20)
             make.width.equalToSuperview()
         }
         
         verticalStackView.addArrangedSubview(pendingTaskLabel)
         pendingTaskLabel.snp.makeConstraints { (make) in
-//            make.height.equalTo(20)
             make.width.equalToSuperview()
         }
     }
     
-    func populateViews(project: Project) {
-//        self.project = project
+    func populateViews() {
+        colorView.color = project.color!
+        nameLabel.text = project.name
+        if project.detail != "" {
+            detailLabel.isHidden = false
+            detailLabel.text = project.detail
+        }
+        if project.taskLeft > 0 {
+            pendingTaskLabel.isHidden = false
+            let taskLeftString: String = project.taskLeft == 0 ? "task left" : "tasks left"
+            pendingTaskLabel.text = "\(project.taskLeft) \(taskLeftString)"
+        }
     }
 }
