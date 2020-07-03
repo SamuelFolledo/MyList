@@ -111,18 +111,19 @@ extension ProjectController: NSFetchedResultsControllerDelegate {
                     at indexPath: IndexPath?,
                     for type: NSFetchedResultsChangeType,
                     newIndexPath: IndexPath?) {
+        //update projects
+        guard let updatedProjects = controller.fetchedObjects as? [Project] else { return }
+        projects = updatedProjects
+        //update tableVie
         switch type {
         case .insert:
-            guard let project = anObject as? Project else { return }
-            projects.insert(project, at: newIndexPath!.row)
             tableView.insertRows(at: [newIndexPath!], with: .automatic)
         case .delete:
-            projects.remove(at: indexPath!.row)
             tableView.deleteRows(at: [indexPath!], with: .automatic)
         case .update:
             let cell = tableView.cellForRow(at: indexPath!) as! ProjectCell
             configure(cell: cell, for: indexPath!)
-        case .move:
+        case .move: //not tested
             tableView.deleteRows(at: [indexPath!], with: .automatic)
             tableView.insertRows(at: [newIndexPath!], with: .automatic)
         default: break
@@ -133,7 +134,7 @@ extension ProjectController: NSFetchedResultsControllerDelegate {
         tableView.endUpdates()
     }
     
-    //Needed for inserting sections
+    //Needed for updating sections
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
         let indexSet = IndexSet(integer: sectionIndex)
         switch type {
@@ -141,6 +142,12 @@ extension ProjectController: NSFetchedResultsControllerDelegate {
             tableView.insertSections(indexSet, with: .automatic)
         case .delete:
             tableView.deleteSections(indexSet, with: .automatic)
+        case .update: //not tested
+            tableView.deleteSections(indexSet, with: .automatic)
+            tableView.insertSections(indexSet, with: .automatic)
+        case .move: //not tested
+            tableView.deleteSections(indexSet, with: .automatic)
+            tableView.insertSections(indexSet, with: .automatic)
         default: break
         }
     }
@@ -188,7 +195,7 @@ extension ProjectController: UITableViewDataSource {
         if searchController.isActive && searchController.searchBar.text != "" {
             return filteredProjects.count
         } else {
-            return projects.count
+            return fetchedResultsController.sections![section].numberOfObjects
         }
     }
     
