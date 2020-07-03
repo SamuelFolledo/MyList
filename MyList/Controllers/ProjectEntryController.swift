@@ -58,8 +58,7 @@ class ProjectEntryController: UIViewController {
         return label
     }()
     lazy var saveEditButton: UIBarButtonItem = {
-        let title = project == nil ? "Save" : "Edit"
-        let barButton = UIBarButtonItem(title: title, style: .plain, target: self, action: #selector(self.handleSaveEditProject))
+        let barButton = UIBarButtonItem(title: "Save", style: .plain, target: self, action: #selector(self.handleSaveEditProject))
         return barButton
     }()
     lazy var scrollView: UIScrollView = {
@@ -143,6 +142,15 @@ class ProjectEntryController: UIViewController {
     }
     
     // MARK: Private Methods
+    fileprivate func populateViewsWithProject() {
+        saveEditButton.title = self.project == nil ? "Add" : "Save"
+        guard let project = project else { return }
+        nameTextField.text = project.name
+        for colorView in colorViews where colorView.color == project.color { //find the colorView that matches project.color
+            colorView.isSelected = true
+        }
+    }
+    
     fileprivate func setupViews() {
         setupNavigationBar()
         constraintScrollView()
@@ -255,7 +263,7 @@ class ProjectEntryController: UIViewController {
         guard let project = project else { return }
         guard let name = nameTextField.text, !name.isEmpty else { return }
         if project.color == nil { //user did not select any colors
-            resetBorderOfColorViews(color: .red)
+            colorViews.forEach() { $0.hasError = true } //add red borders
             return
         }
         project.name = name
@@ -266,31 +274,29 @@ class ProjectEntryController: UIViewController {
         delegate?.didSaveProject(vc: self, didSave: true)
     }
     
-    func populateViewsWithProject() {
-        guard let project = project else { return }
-        nameTextField.text = project.name
-        for colorView in colorViews where colorView.color == project.color {
-            colorView.layer.borderColor = UIColor.label.cgColor
-        }
-    }
-    
     ///clears the border of all colorViews
-    fileprivate func resetBorderOfColorViews(color: UIColor = UIColor.clear) {
+    fileprivate func resetBorderOfAllColorViews() {
         for otherColorView in colorViews {
-            otherColorView.layer.borderColor = color.cgColor
+            otherColorView.hasError = false
+            otherColorView.isSelected = false
         }
     }
     
     ///update project color with the sender's background color. Update favoriteColor and
     @objc func colorViewTapped(_ gestureRecognizer: UIGestureRecognizer) {
         guard let tappedColorView = gestureRecognizer.view as? ColorView else { return }
-        if tappedColorView.layer.borderColor != UIColor.label.cgColor { //if user selected a new color
-            resetBorderOfColorViews() //clear everything
-            project!.color = tappedColorView.color //assign project's color
-            tappedColorView.layer.borderColor = UIColor.label.cgColor //add border to colorView
-        } else { //if user selected this color already
-            tappedColorView.layer.borderColor = UIColor.clear.cgColor //clear the border
-            project!.color = nil
+        if tappedColorView.isSelected { //if tappedColor was already selected
+            tappedColorView.isSelected = false
+            project!.color = nil //clear project's color
+        } else if tappedColorView.hasError { //if tappedColor hasError
+            resetBorderOfAllColorViews() //clear all colorViews's border
+            tappedColorView.hasError = false
+            tappedColorView.isSelected = true //select it
+            project!.color = tappedColorView.color
+        } else { //if unselected and no error, select it
+            resetBorderOfAllColorViews()
+            tappedColorView.isSelected = true
+            project!.color = tappedColorView.color
         }
     }
 }
