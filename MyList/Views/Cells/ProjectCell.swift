@@ -11,7 +11,11 @@ import UIKit
 class ProjectCell: UITableViewCell { //is the UserCell we registered to our TableView
     
     //MARK: Properties
-    var project: Project!
+    var project: Project! {
+        didSet {
+            setupViews()
+        }
+    }
     
     //MARK: View Properties
     lazy var mainStackView: UIStackView = {
@@ -36,6 +40,7 @@ class ProjectCell: UITableViewCell { //is the UserCell we registered to our Tabl
         label.textColor = .label
         label.numberOfLines = 2
         label.textAlignment = .left
+        label.text = project.name
         return label
     }()
     lazy var detailLabel: UILabel = {
@@ -45,6 +50,10 @@ class ProjectCell: UITableViewCell { //is the UserCell we registered to our Tabl
         label.numberOfLines = 1
         label.textAlignment = .left
         label.isHidden = true
+        if project.detail != "" {
+            label.isHidden = false
+            label.text = project.detail
+        }
         return label
     }()
     lazy var pendingTaskLabel: UILabel = {
@@ -54,6 +63,11 @@ class ProjectCell: UITableViewCell { //is the UserCell we registered to our Tabl
         label.numberOfLines = 1
         label.textAlignment = .left
         label.isHidden = true
+        if project.taskLeft > 0 {
+            label.isHidden = false
+            let taskLeftString: String = project.taskLeft == 0 ? "task left" : "tasks left"
+            label.text = "\(project.taskLeft) \(taskLeftString)"
+        }
         return label
     }()
     lazy var colorView: ColorView = {
@@ -76,6 +90,7 @@ class ProjectCell: UITableViewCell { //is the UserCell we registered to our Tabl
         detailLabel.isHidden = true
         pendingTaskLabel.text = ""
         pendingTaskLabel.isHidden = true
+        colorView.color = .clear
     }
     
     //MARK: Private Methods
@@ -122,17 +137,6 @@ class ProjectCell: UITableViewCell { //is the UserCell we registered to our Tabl
     }
     
     func populateViews(project: Project) {
-        self.project = project
-        setupViews()
-        nameLabel.text = project.name
-        if project.detail != "" {
-            detailLabel.isHidden = false
-            detailLabel.text = project.detail
-        }
-        if project.taskLeft > 0 {
-            pendingTaskLabel.isHidden = false
-            let taskLeftString: String = project.taskLeft == 0 ? "task left" : "tasks left"
-            pendingTaskLabel.text = "\(project.taskLeft) \(taskLeftString)"
-        }
+//        self.project = project
     }
 }
