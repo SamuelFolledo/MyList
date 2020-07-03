@@ -181,14 +181,22 @@ extension ProjectController: UITableViewDelegate {
     
     //MARK: Split Sections by Continent
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return fetchedResultsController.sections?[section].name
+        if searchController.isActive && searchController.searchBar.text != "" {
+            return nil //no section title when searching
+        } else {
+            return fetchedResultsController.sections?[section].name
+        }
     }
 }
 
 // MARK: TableViewDataSource
 extension ProjectController: UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
-        return fetchedResultsController.sections?.count ?? 0
+        if searchController.isActive && searchController.searchBar.text != "" {
+            return filteredProjects.count > 0 ? 1 : 0 //one section if there is searched project, else 0 section
+        } else {
+            return fetchedResultsController.sections?.count ?? 0
+        }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
