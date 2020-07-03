@@ -16,6 +16,14 @@ class ProjectCell: UITableViewCell {
     }
     
     //MARK: View Properties
+    lazy var containerView: UIView = {
+        let view: UIView = UIView(frame: .zero)
+        view.backgroundColor = .systemFill
+        view.layer.masksToBounds = true
+        view.layer.cornerRadius = 10
+        return view
+    }()
+    
     lazy var mainStackView: UIStackView = { //will contain colorView and verticalStackView
         let stackView: UIStackView = UIStackView()
         stackView.axis = .horizontal
@@ -84,38 +92,40 @@ class ProjectCell: UITableViewCell {
     
     //MARK: Private Methods
     func setupViews() {
-        //add mainStackView to content view
-        contentView.addSubview(mainStackView)
+        contentView.addSubview(containerView)
+        containerView.snp.makeConstraints { (make) in
+            make.top.equalToSuperview().offset(10)
+            make.leading.equalToSuperview().offset(18)
+            make.trailing.equalToSuperview().offset(-18)
+            make.bottom.equalToSuperview().offset(-10)
+        }
+        //setup mainStackView
+        containerView.addSubview(mainStackView)
         mainStackView.snp.makeConstraints { (make) in
             make.top.equalToSuperview().offset(10)
             make.leading.equalToSuperview().offset(20)
             make.trailing.equalToSuperview().offset(-20)
             make.bottom.equalToSuperview().offset(-10)
         }
-        
         mainStackView.addArrangedSubview(colorView)
         colorView.snp.makeConstraints { (make) in
             make.height.equalTo(40)
             make.width.equalTo(40)
             make.centerY.equalToSuperview()
         }
-        
         mainStackView.addArrangedSubview(verticalStackView)
         verticalStackView.snp.makeConstraints { (make) in
             make.height.equalToSuperview()
             make.width.lessThanOrEqualToSuperview()
         }
-        
         verticalStackView.addArrangedSubview(nameLabel)
         nameLabel.snp.makeConstraints { (make) in
             make.width.equalToSuperview()
         }
-        
         verticalStackView.addArrangedSubview(detailLabel)
         detailLabel.snp.makeConstraints { (make) in
             make.width.equalToSuperview()
         }
-        
         verticalStackView.addArrangedSubview(pendingTaskLabel)
         pendingTaskLabel.snp.makeConstraints { (make) in
             make.width.equalToSuperview()
