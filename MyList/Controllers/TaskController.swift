@@ -13,9 +13,11 @@ class TaskController: UIViewController {
     
     weak var coordinator: MainCoordinator!
     weak var coreDataStack: CoreDataStack!
-    var tasks: [Task] = [] { didSet { tableView.reloadData() } }
+//    var tasks: [Task] = [] { didSet { tasks.forEach() {$0.isDone ? doneTasks.append($0) : toDoTasks.append($0)} } } //is task isDone, then append to doneTasks, else append to toDoTasks
+//    var toDoTasks: [Task] = [] { didSet { tableView.reloadData() } }
+//    var doneTasks: [Task] = [] { didSet { tableView.reloadData() } }
     var project: Project!
-    var childContext: NSManagedObjectContext!
+//    var childContext: NSManagedObjectContext!
     
     //MARK: Properties Views
     lazy var tableView: UITableView = {
@@ -45,9 +47,15 @@ class TaskController: UIViewController {
         return segmentedControl
     }()
     
+    //MARK: App Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        print(project.tasks)
     }
     
     //MARK: Private Methods
@@ -86,19 +94,36 @@ class TaskController: UIViewController {
 
 extension TaskController: UITableViewDelegate{
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let task = tasks[indexPath.row]
+        var task: Task!
+        switch segmentedControl.selectedSegmentIndex {
+        case 0: //to do
+            task = project.toDoTasks[indexPath.row]
+        default:
+            task = project.doneTasks[indexPath.row]
+        }
         print(task.name)
     }
 }
 
 extension TaskController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return tasks.count
+        switch segmentedControl.selectedSegmentIndex {
+        case 0: //to do
+            return project.toDoTasks.count
+        default:
+            return project.doneTasks.count
+        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: TaskCell = tableView.dequeueReusableCell(withIdentifier: String(describing: TaskCell.self), for: indexPath) as! TaskCell
-        let task = tasks[indexPath.row]
+        var task: Task!
+        switch segmentedControl.selectedSegmentIndex {
+        case 0: //to do
+            task = project.toDoTasks[indexPath.row]
+        default:
+            task = project.doneTasks[indexPath.row]
+        }
         cell.populateViews(task: task)
         return cell
     }
