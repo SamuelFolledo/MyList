@@ -16,8 +16,8 @@ protocol TaskEntryDelegate {
 
 class TaskEntryController: UIViewController {
     
-    weak var coordinator: MainCoordinator?
-    var task: Task?
+    weak var coordinator: MainCoordinator!
+    var task: Task!
     var childContext: NSManagedObjectContext!
     var delegate: TaskEntryDelegate?
     
@@ -104,18 +104,30 @@ class TaskEntryController: UIViewController {
     // MARK: Private Methods
     fileprivate func populateViewsWithTask() {
         saveEditButton.title = self.task == nil ? "Add" : "Save"
-        guard let task = task else { return }
-        nameTextField.text = task.name
-        dateTextField.text = task.dueDate.dateToUTC
+        guard let name = task.name, let dueDate = task.dueDate else { return }
+        nameTextField.text = name
+        dateTextField.text = dueDate.dateToUTC
     }
     
     fileprivate func setupViews() {
+        view.backgroundColor = .systemBackground
         setupNavigationBar()
         constraintScrollView()
         constraintNameLabel()
         constraintNameField()
         constraintDateLabel()
+        constraintDateField()
         hideKeyboardOnTap()
+    }
+    
+    fileprivate func constraintDateField() {
+        contentView.addSubview(dateTextField)
+        dateTextField.snp.makeConstraints { (make) in
+            make.top.equalTo(dateLabel.snp.bottom).offset(10)
+            make.leading.equalTo(dateLabel.snp.leading)
+            make.trailing.equalTo(dateLabel.snp.trailing)
+            make.height.equalTo(45)
+        }
     }
     
     fileprivate func constraintDateLabel() {
