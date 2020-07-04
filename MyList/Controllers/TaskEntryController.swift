@@ -182,8 +182,9 @@ class TaskEntryController: UIViewController {
         guard let name = nameTextField.text, !name.isEmpty else { return }
         task.name = name
         task.details = "No details"
-        task.dueDate = Date()
-        task.status = false
+        let modifiedDate = Calendar.current.date(byAdding: .day, value: 1, to: Date())! //add a day (24 hours) to today's date
+        task.dueDate = modifiedDate
+        task.isDone = false
         delegate?.didSaveTask(vc: self, didSave: true)
     }
 }
