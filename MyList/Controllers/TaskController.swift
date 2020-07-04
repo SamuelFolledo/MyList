@@ -12,6 +12,7 @@ import CoreData
 class TaskController: UIViewController {
     
     weak var coordinator: MainCoordinator!
+    weak var coreDataStack: CoreDataStack!
     var tasks: [Task] = [] { didSet { tableView.reloadData() } }
     var project: Project!
     var childContext: NSManagedObjectContext!
@@ -51,6 +52,7 @@ class TaskController: UIViewController {
     
     //MARK: Private Methods
     fileprivate func setupViews() {
+        view.backgroundColor = .systemBackground
         setupNavigationBar()
         constraintViews()
     }
@@ -63,7 +65,6 @@ class TaskController: UIViewController {
             make.trailing.equalTo(view.safeAreaLayoutGuide.snp.trailing).offset(-20)
             make.height.equalTo(40)
         }
-        
         self.view.addSubview(tableView)
         tableView.snp.makeConstraints { (make) in
             make.top.equalTo(segmentedControl.snp.bottom)
@@ -79,7 +80,7 @@ class TaskController: UIViewController {
     
     //MARK: Helpers
     @objc func handleAddTask() {
-        print("Add Task")
+        coordinator.goToTaskEntry(fromVC: self, task: nil)
     }
 }
 
