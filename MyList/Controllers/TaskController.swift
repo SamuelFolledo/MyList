@@ -103,3 +103,19 @@ extension TaskController: UITableViewDataSource {
         return cell
     }
 }
+
+//MARK: Task Entry Delegate
+extension TaskController: TaskEntryDelegate {
+    func didSaveTask(vc: TaskEntryController, didSave: Bool) {
+        coordinator.navigationController.popViewController(animated: true)
+        guard didSave, let context = vc.childContext, context.hasChanges else { return }
+        context.perform {
+            do {
+                try context.save()
+            } catch let error as NSError {
+                fatalError("Error: \(error.localizedDescription)")
+            }
+            self.coreDataStack.saveContext()
+        }
+    }
+}
