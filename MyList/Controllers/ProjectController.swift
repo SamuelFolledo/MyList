@@ -104,11 +104,7 @@ extension ProjectController: NSFetchedResultsControllerDelegate {
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         tableView.beginUpdates()
     }
-    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>,
-                    didChange anObject: Any,
-                    at indexPath: IndexPath?,
-                    for type: NSFetchedResultsChangeType,
-                    newIndexPath: IndexPath?) {
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         //update projects
         guard let updatedProjects = controller.fetchedObjects as? [Project] else { return }
         projects = updatedProjects
@@ -243,21 +239,18 @@ extension ProjectController: UISearchResultsUpdating {
     }
 }
 
+//MARK: Project Entry Delegate
 extension ProjectController: ProjectEntryDelegate {
     func didSaveProject(vc: ProjectEntryController, didSave: Bool) {
-        guard didSave, let context = vc.childContext, context.hasChanges else {
-            vc.navigationController?.popViewController(animated: true)
-            return
-        }
+        coordinator.navigationController.popViewController(animated: true)
+        guard didSave, let context = vc.childContext, context.hasChanges else { return }
         context.perform {
             do {
                 try context.save()
             } catch let error as NSError {
                 fatalError("Error: \(error.localizedDescription)")
             }
-            
             self.coreDataStack.saveContext()
         }
-        vc.navigationController?.popViewController(animated: true)
     }
 }
