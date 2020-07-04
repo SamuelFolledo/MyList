@@ -13,7 +13,7 @@ extension Date {
         static let utcFormatter: DateFormatter = {
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss'Z'"
-            dateFormatter.timeZone = TimeZone(identifier: "EST") //load the user's current TimeZone identifier here
+            dateFormatter.timeZone = TimeZone(identifier: "UTC") //load the user's current TimeZone identifier here
             return dateFormatter
         }()
     }
