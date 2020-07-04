@@ -13,7 +13,7 @@
         <attribute name="dueDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="status" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
-        <relationship name="project" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="Project" inverseName="tasks" inverseEntity="Project"/>
+        <relationship name="project" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Project" inverseName="tasks" inverseEntity="Project"/>
     </entity>
     <elements>
         <element name="Project" positionX="-276.8828125" positionY="1.453125" width="128" height="133"/>
