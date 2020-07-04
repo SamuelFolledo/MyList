@@ -54,9 +54,28 @@ class MainCoordinator: Coordinator {
     func goToTask(project: Project) {
         let vc = TaskController()
         vc.project = project
+        vc.coreDataStack = coreDataStack
         vc.coordinator = self
-        vc.view.backgroundColor = .systemBackground
         vc.title = project.name
+        navigationController.pushViewController(vc, animated: true)
+    }
+    
+    func goToTaskEntry(fromVC: UIViewController, task: Task?) {
+        let vc = TaskEntryController()
+        vc.delegate = (fromVC as! TaskEntryDelegate)
+        vc.coordinator = self
+        let childContext = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
+        childContext.parent = coreDataStack.mainContext
+        vc.childContext = childContext
+        if task == nil { //new project
+            let newTask = Task(context: childContext)
+            vc.task = newTask
+            vc.title = "New Task"
+        } else { //edit project
+            let taskToEdit = childContext.object(with: task!.objectID) as? Task
+            vc.task = taskToEdit
+            vc.title = "Edit Task"
+        }
         navigationController.pushViewController(vc, animated: true)
     }
 }
