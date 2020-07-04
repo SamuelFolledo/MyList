@@ -17,7 +17,7 @@ protocol ProjectEntryDelegate {
 class ProjectEntryController: UIViewController {
     
     weak var coordinator: MainCoordinator?
-    var project: Project?
+    var project: Project!
     var childContext: NSManagedObjectContext!
     var delegate: ProjectEntryDelegate?
     
@@ -144,7 +144,6 @@ class ProjectEntryController: UIViewController {
     // MARK: Private Methods
     fileprivate func populateViewsWithProject() {
         saveEditButton.title = self.project == nil ? "Add" : "Save"
-        guard let project = project else { return }
         nameTextField.text = project.name
         for colorView in colorViews where colorView.color == project.color { //find the colorView that matches project.color
             colorView.isSelected = true
