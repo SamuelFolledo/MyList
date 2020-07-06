@@ -25,6 +25,7 @@ class TaskController: UIViewController {
         table.rowHeight = 100
         table.delegate = self
         table.dataSource = self
+        table.separatorStyle = .none
         table.tableFooterView = UIView()
         table.register(TaskCell.self, forCellReuseIdentifier: String(describing: TaskCell.self))
         return table
