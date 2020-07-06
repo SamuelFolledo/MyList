@@ -135,13 +135,32 @@ extension TaskController: TaskEntryDelegate {
     func didSaveTask(vc: TaskEntryController, didSave: Bool) {
         coordinator.navigationController.popViewController(animated: true)
         guard didSave, let context = vc.childContext, context.hasChanges else { return }
-        context.perform {
+        context.perform { //save
             do {
                 try context.save()
             } catch let error as NSError {
                 fatalError("Error: \(error.localizedDescription)")
             }
-            self.coreDataStack.saveContext()
+            guard let currentProject = context.object(with: self.project.objectID) as? Project else { return }
+            for taskObject in context.registeredObjects { //get the task we want to save
+                guard let task = taskObject as? Task else { return }
+                guard let projectTasks = currentProject.tasks.mutableCopy() as? NSMutableOrderedSet else { return } //get project's list tasks
+//                projectTasks.add(task) //append our saved task
+//                projectTasks.insert(task, at: 0)
+//                self.project.addToTasks(task)
+//                self.project.insertIntoTasks(task, at: 0)
+//                self.project.tasks = projectTasks
+                
+                let taskkk = context.object(with: task.objectID) as? Task
+                projectTasks.add(taskkk!)
+                currentProject.tasks = projectTasks
+                (UIApplication.shared.delegate as? AppDelegate)?.saveContext()
+//                project?.insertIntoTasks(taskkk!, at: 0)
+//                self.project = project
+//                self.project.addToTasks(taskkk!)
+//                self.project.tasks = taskkk!
+            }
+//            self.coreDataStack.saveContext()
         }
     }
 }
