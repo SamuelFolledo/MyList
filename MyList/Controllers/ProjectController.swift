@@ -42,6 +42,7 @@ class ProjectController: UIViewController {
         table.rowHeight = 100
         table.delegate = self
         table.dataSource = self
+        table.separatorStyle = .none
         table.tableFooterView = UIView()
         table.register(ProjectCell.self, forCellReuseIdentifier: String(describing: ProjectCell.self))
         return table
