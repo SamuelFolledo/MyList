@@ -102,7 +102,7 @@ extension TaskController: UITableViewDelegate{
         default:
             task = project.doneTasks[indexPath.row]
         }
-        print(task.name)
+        print("SELECTED ", task.name)
     }
 }
 
@@ -134,33 +134,23 @@ extension TaskController: UITableViewDataSource {
 extension TaskController: TaskEntryDelegate {
     func didSaveTask(vc: TaskEntryController, didSave: Bool) {
         coordinator.navigationController.popViewController(animated: true)
-        guard didSave, let context = vc.childContext, context.hasChanges else { return }
-        context.perform { //save
+        guard didSave, let childContext = vc.childContext, childContext.hasChanges else { return }
+        guard let currentProject = childContext.object(with: self.project.objectID) as? Project, //fetch the project
+            let tasks = currentProject.tasks.mutableCopy() as? NSMutableOrderedSet //get tasks list
+            else { return }
+        for managedObject in childContext.registeredObjects { //get the task from childContext
+            guard let task = managedObject as? Task else { continue }
+            tasks.add(task) //add task to tasks
+            currentProject.tasks = tasks
+        }
+        self.project = currentProject //update self.project
+        childContext.perform { //save childContext before mainContext
             do {
-                try context.save()
+                try childContext.save()
             } catch let error as NSError {
                 fatalError("Error: \(error.localizedDescription)")
             }
-            guard let currentProject = context.object(with: self.project.objectID) as? Project else { return }
-            for taskObject in context.registeredObjects { //get the task we want to save
-                guard let task = taskObject as? Task else { return }
-                guard let projectTasks = currentProject.tasks.mutableCopy() as? NSMutableOrderedSet else { return } //get project's list tasks
-//                projectTasks.add(task) //append our saved task
-//                projectTasks.insert(task, at: 0)
-//                self.project.addToTasks(task)
-//                self.project.insertIntoTasks(task, at: 0)
-//                self.project.tasks = projectTasks
-                
-                let taskkk = context.object(with: task.objectID) as? Task
-                projectTasks.add(taskkk!)
-                currentProject.tasks = projectTasks
-                (UIApplication.shared.delegate as? AppDelegate)?.saveContext()
-//                project?.insertIntoTasks(taskkk!, at: 0)
-//                self.project = project
-//                self.project.addToTasks(taskkk!)
-//                self.project.tasks = taskkk!
-            }
-//            self.coreDataStack.saveContext()
+            self.coreDataStack.saveContext() //save mainContext
         }
     }
 }
