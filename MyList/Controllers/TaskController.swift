@@ -22,7 +22,7 @@ class TaskController: UIViewController {
     //MARK: Properties Views
     lazy var tableView: UITableView = {
         let table = UITableView()
-        table.rowHeight = 100
+        table.rowHeight = 70
         table.delegate = self
         table.dataSource = self
         table.separatorStyle = .none
@@ -125,7 +125,7 @@ extension TaskController: UITableViewDataSource {
         default:
             task = project.doneTasks[indexPath.row]
         }
-        cell.populateViews(task: task)
+        cell.task = task
         return cell
     }
 }
