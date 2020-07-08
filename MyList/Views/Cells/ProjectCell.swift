@@ -132,7 +132,7 @@ class ProjectCell: UITableViewCell {
         }
     }
     
-    func populateViews() {
+    fileprivate func populateViews() {
         colorView.color = project.color!
         nameLabel.text = project.name
         if project.detail != "" {
