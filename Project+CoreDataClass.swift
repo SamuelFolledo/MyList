@@ -28,14 +28,14 @@ extension Project {
     
     @objc var toDoTasks: [Task] {
         get {
-            guard let tasks = tasks.mutableCopy() as? [Task] else { return [] } //convert tasks to array of tasks
+            guard let tasks = self.tasks.array as? [Task] else { return [] } //convert tasks to array of tasks
             return tasks.filter() { !$0.isDone } //return unfinished tasks
         }
     }
     
     @objc var doneTasks: [Task] {
         get {
-            guard let tasks = tasks.mutableCopy() as? [Task] else { return [] } //convert tasks to array of tasks
+            guard let tasks = self.tasks.array as? [Task] else { return [] } //convert tasks to array of tasks
             return tasks.filter() { $0.isDone } //return finished tasks
         }
     }
