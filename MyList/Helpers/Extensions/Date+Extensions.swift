@@ -12,14 +12,27 @@ extension Date {
     struct Formatter {
         static let utcFormatter: DateFormatter = {
             let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss'Z'"
+//            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss'Z'"
+            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
             dateFormatter.timeZone = TimeZone(identifier: "UTC") //load the user's current TimeZone identifier here
+            return dateFormatter
+        }()
+        static let dueDateFormatter: DateFormatter = {
+            let dateFormatter = DateFormatter()
+            dateFormatter.locale = Locale(identifier: "en_US_POSIX") //get time zone
+            dateFormatter.dateFormat = "h:mm a 'on' MMMM dd, yyyy"
+            dateFormatter.amSymbol = "AM"
+            dateFormatter.pmSymbol = "PM"
             return dateFormatter
         }()
     }
     
     var dateToUTC: String {
         return Formatter.utcFormatter.string(from: self)
+    }
+    
+    var dateToDueDate: String {
+        return Formatter.dueDateFormatter.string(from: self)
     }
 }
 
