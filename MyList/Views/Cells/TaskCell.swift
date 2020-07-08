@@ -11,6 +11,7 @@ import UIKit
 class TaskCell: UITableViewCell {
     
     //MARK: Properties
+    var task: Task! { didSet { populateViews(task: task) } }
     
     //MARK: View Properties
     lazy var mainStackView: UIStackView = {
@@ -55,11 +56,12 @@ class TaskCell: UITableViewCell {
         label.isHidden = true
         return label
     }()
-    lazy var colorView: UIView = {
-        let view: UIView = UIView(frame: .zero)
-        return view
+    lazy var colorView: ColorView = {
+        let colorView = ColorView(shape: .square, color: .clear, isFilled: true, height: 40)
+        return colorView
     }()
     
+    //MARK: Init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: .subtitle, reuseIdentifier: reuseIdentifier)
         self.setupViews()
@@ -86,32 +88,27 @@ class TaskCell: UITableViewCell {
             make.trailing.equalToSuperview().offset(-20)
             make.bottom.equalToSuperview().offset(-10)
         }
-        
         mainStackView.addArrangedSubview(colorView)
         colorView.snp.makeConstraints { (make) in
             make.height.equalTo(30)
             make.width.equalTo(30)
             make.centerY.equalToSuperview()
         }
-        
         mainStackView.addArrangedSubview(verticalStackView)
         verticalStackView.snp.makeConstraints { (make) in
             make.height.lessThanOrEqualToSuperview()
             make.width.lessThanOrEqualToSuperview()
         }
-        
         verticalStackView.addArrangedSubview(nameLabel)
         nameLabel.snp.makeConstraints { (make) in
             make.height.equalTo(50)
             make.width.equalToSuperview()
         }
-        
         verticalStackView.addArrangedSubview(detailLabel)
         detailLabel.snp.makeConstraints { (make) in
             make.height.equalTo(20)
             make.width.equalToSuperview()
         }
-        
         verticalStackView.addArrangedSubview(dueDateLabel)
         dueDateLabel.snp.makeConstraints { (make) in
             make.height.equalTo(20)
@@ -119,7 +116,13 @@ class TaskCell: UITableViewCell {
         }
     }
     
-    func populateViews(task: Task) {
-        
+    fileprivate func populateViews() {
+        nameLabel.text = task.name
+        if let dueDate = task.dueDate {
+            detailLabel.isHidden = false
+            detailLabel.text = dueDate.dateToDueDate
+        }
+        colorView.color = task.project!.color!
+        colorView.isFilled = task.isDone ? true : false
     }
 }
