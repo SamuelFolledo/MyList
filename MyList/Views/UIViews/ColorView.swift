@@ -15,10 +15,13 @@ class ColorView: UIView {
     }
     
     var shape: Shape
-    var color: UIColor {
-        didSet { backgroundColor = color }
+    var color: UIColor { didSet { backgroundColor = color } }
+    var isFilled: Bool {
+        didSet {
+            backgroundColor = isFilled ? color : .clear //add background color if filled
+            layer.borderColor = isFilled ? UIColor.clear.cgColor : color.cgColor //add border if not filled
+        }
     }
-    var isFilled: Bool
     var height: CGFloat
     var isSelected: Bool = false {
         didSet { isSelected ? addOuterBorder(borderWidth: 4, borderColor: UIColor.label) : removeOuterBorders() }
@@ -50,5 +53,8 @@ class ColorView: UIView {
             layer.cornerRadius = 5
         }
         backgroundColor = isFilled ? color : .clear
+        layer.masksToBounds = true
+        layer.borderWidth = 2
+        layer.borderColor = UIColor.clear.cgColor
     }
 }
