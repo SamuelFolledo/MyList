@@ -183,7 +183,8 @@ extension ProjectController: UITableViewDelegate {
         if searchController.isActive && searchController.searchBar.text != "" {
             return nil //no section title when searching
         } else {
-            return fetchedResultsController.sections?[section].name
+            let lastOpenedDate = fetchedResultsController.sections?[section].name
+            return "Last Opened: \(lastOpenedDate!)"
         }
     }
 }
