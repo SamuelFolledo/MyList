@@ -11,7 +11,7 @@ import UIKit
 class TaskCell: UITableViewCell {
     
     //MARK: Properties
-    var task: Task! { didSet { populateViews(task: task) } }
+    var task: Task! { didSet { populateViews() } }
     
     //MARK: View Properties
     lazy var mainStackView: UIStackView = {
