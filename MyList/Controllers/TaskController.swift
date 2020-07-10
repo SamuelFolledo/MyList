@@ -98,19 +98,33 @@ class TaskController: UIViewController {
 
 //        }
     }
+    
+    fileprivate func animateCell(cell: TaskCell, toLeft: Bool) {
+        let cellLocation = cell.convert(cell.center, from: cell.superview)
+        let cellDestination = toLeft ? tableView.bounds.width : -tableView.bounds.width //get left or right of tableView
+        UIView.animate(withDuration: 0.4, delay: 0.2, options: [.curveEaseInOut], animations: {
+            cell.center = cellLocation.applying(CGAffineTransform(translationX: cellDestination, y: 0))
+        }) { (_) in
+            self.tableView.reloadData()
+        }
+    }
 }
 
 extension TaskController: UITableViewDelegate{
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         var task: Task!
-        switch segmentedControl.selectedSegmentIndex {
-        case 0: //to do
-            task = project.toDoTasks[indexPath.row]
-        default:
-            task = project.doneTasks[indexPath.row]
+        var toLeft: Bool = true
+        switch self.segmentedControl.selectedSegmentIndex {
+        case 0: //to do tasks
+            task = self.project.toDoTasks[indexPath.row]
+        default: //done tasks
+            toLeft = false
+            task = self.project.doneTasks[indexPath.row]
         }
         task.isDone = !task.isDone
-        tableView.reloadData()
+        guard let tappedCell = tableView.cellForRow(at: indexPath) as? TaskCell else { return }
+        tappedCell.task = task
+        animateCell(cell: tappedCell, toLeft: toLeft)
     }
 }
 
