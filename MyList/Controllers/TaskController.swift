@@ -13,11 +13,7 @@ class TaskController: UIViewController {
     
     weak var coordinator: MainCoordinator!
     weak var coreDataStack: CoreDataStack!
-//    var tasks: [Task] = [] { didSet { tasks.forEach() {$0.isDone ? doneTasks.append($0) : toDoTasks.append($0)} } } //is task isDone, then append to doneTasks, else append to toDoTasks
-//    var toDoTasks: [Task] = [] { didSet { tableView.reloadData() } }
-//    var doneTasks: [Task] = [] { didSet { tableView.reloadData() } }
     var project: Project!
-//    var childContext: NSManagedObjectContext!
     
     //MARK: Properties Views
     lazy var tableView: UITableView = {
@@ -45,6 +41,7 @@ class TaskController: UIViewController {
                                                  NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18, weight: .bold)], for: .normal)
         segmentedControl.setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.white,
                                                  NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18, weight: .bold)], for: .selected)
+        segmentedControl.addTarget(self, action: #selector(switchTaskList), for: .valueChanged)
         return segmentedControl
     }()
     
@@ -91,6 +88,16 @@ class TaskController: UIViewController {
     @objc func handleAddTask() {
         coordinator.goToTaskEntry(fromVC: self, task: nil)
     }
+    
+    @objc func switchTaskList() {
+        tableView.reloadData()
+//        switch segmentedControl.selectedSegmentIndex {
+//        case 0:
+//
+//        default:
+
+//        }
+    }
 }
 
 extension TaskController: UITableViewDelegate{
@@ -102,7 +109,8 @@ extension TaskController: UITableViewDelegate{
         default:
             task = project.doneTasks[indexPath.row]
         }
-        print("SELECTED ", task.name)
+        task.isDone = !task.isDone
+        tableView.reloadData()
     }
 }
 
