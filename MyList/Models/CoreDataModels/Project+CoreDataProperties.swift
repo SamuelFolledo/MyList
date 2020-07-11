@@ -2,14 +2,14 @@
 //  Project+CoreDataProperties.swift
 //  MyList
 //
-//  Created by Samuel Folledo on 6/27/20.
+//  Created by Samuel Folledo on 6/29/20.
 //  Copyright © 2020 SamuelFolledo. All rights reserved.
 //
 //
 
 import Foundation
 import CoreData
-
+import UIKit.UIColor
 
 extension Project {
 
@@ -17,12 +17,12 @@ extension Project {
         return NSFetchRequest<Project>(entityName: "Project")
     }
 
-    @NSManaged public var color: NSObject
+    @NSManaged public var color: UIColor?
     @NSManaged public var detail: String
-    @NSManaged public var lastOpened: Date
+    @NSManaged public var lastOpenedDate: Date
     @NSManaged public var name: String
     @NSManaged public var taskLeft: Int32
-    @NSManaged public var tasks: NSOrderedSet?
+    @NSManaged public var tasks: NSOrderedSet
 
 }
 
