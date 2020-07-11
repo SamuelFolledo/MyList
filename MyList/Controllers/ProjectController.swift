@@ -44,6 +44,7 @@ class ProjectController: UIViewController {
         table.dataSource = self
         table.separatorStyle = .none
         table.tableFooterView = UIView()
+        table.allowsMultipleSelection = false
         table.register(ProjectCell.self, forCellReuseIdentifier: String(describing: ProjectCell.self))
         return table
     }()
