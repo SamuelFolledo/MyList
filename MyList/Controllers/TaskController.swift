@@ -100,7 +100,7 @@ class TaskController: UIViewController {
     }
     
     fileprivate func animateCell(cell: TaskCell, toLeft: Bool) {
-        let cellLocation = cell.convert(cell.center, from: cell.superview)
+        let cellLocation = cell.convert(cell.center, from: cell.superview) //get the cell's position
         let cellDestination = toLeft ? tableView.bounds.width : -tableView.bounds.width //get left or right of tableView
         UIView.animate(withDuration: 0.4, delay: 0.2, options: [.curveEaseInOut], animations: {
             cell.center = cellLocation.applying(CGAffineTransform(translationX: cellDestination, y: 0))
