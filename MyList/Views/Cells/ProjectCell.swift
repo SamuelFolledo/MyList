@@ -21,6 +21,8 @@ class ProjectCell: UITableViewCell {
         view.backgroundColor = .systemFill
         view.layer.masksToBounds = true
         view.layer.cornerRadius = 10
+        view.layer.borderColor = UIColor.clear.cgColor
+        view.layer.borderWidth = 2
         return view
     }()
     
@@ -88,6 +90,11 @@ class ProjectCell: UITableViewCell {
         pendingTaskLabel.text = ""
         pendingTaskLabel.isHidden = true
         colorView.color = .clear
+    }
+    
+    override func setSelected(_ selected: Bool, animated: Bool) {
+        super.setSelected(selected, animated: animated)
+        containerView.layer.borderColor = isSelected ? project.color!.cgColor : UIColor.clear.cgColor //apply border colors
     }
     
     //MARK: Private Methods
