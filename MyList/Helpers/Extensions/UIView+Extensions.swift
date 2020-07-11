@@ -13,7 +13,7 @@ extension UIView {
         static let externalBorderName = "externalBorder"
     }
 
-    func addOuterBorder(borderWidth: CGFloat = 2.0, borderColor: UIColor = UIColor.white) {
+    func addOuterRoundedBorder(borderWidth: CGFloat = 2.0, borderColor: UIColor = UIColor.white) {
         let externalBorder = CALayer()
         //Note: If you want extra space
         externalBorder.frame = CGRect(x: -borderWidth*1.5, y: -borderWidth*1.5, width: frame.size.width + 3 * borderWidth, height: frame.size.height + 3 * borderWidth) //1.5 * 2 = 3
