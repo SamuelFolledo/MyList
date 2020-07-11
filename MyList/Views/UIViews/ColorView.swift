@@ -24,10 +24,10 @@ class ColorView: UIView {
     }
     var height: CGFloat
     var isSelected: Bool = false {
-        didSet { isSelected ? addOuterBorder(borderWidth: 4, borderColor: UIColor.label) : removeOuterBorders() }
+        didSet { isSelected ? addOuterRoundedBorder(borderWidth: 4, borderColor: UIColor.label) : removeOuterBorders() }
     }
     var hasError: Bool = false {
-        didSet { hasError ? addOuterBorder(borderWidth: 4, borderColor: UIColor.systemRed) : removeOuterBorders() }
+        didSet { hasError ? addOuterRoundedBorder(borderWidth: 4, borderColor: UIColor.systemRed) : removeOuterBorders() }
     }
     
     //init with parameters
