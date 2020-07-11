@@ -208,6 +208,7 @@ extension ProjectController: UITableViewDataSource {
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: ProjectCell = tableView.dequeueReusableCell(withIdentifier: String(describing: ProjectCell.self), for: indexPath) as! ProjectCell
+        cell.selectionStyle = .none
         configure(cell: cell, for: indexPath)
         return cell
     }
