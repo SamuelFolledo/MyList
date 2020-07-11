@@ -107,22 +107,24 @@ extension ProjectController: NSFetchedResultsControllerDelegate {
         tableView.beginUpdates()
     }
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
-        //update projects
-        guard let updatedProjects = controller.fetchedObjects as? [Project] else { return }
-        projects = updatedProjects
-        //update tableVie
-        switch type {
-        case .insert:
-            tableView.insertRows(at: [newIndexPath!], with: .automatic)
-        case .delete:
-            tableView.deleteRows(at: [indexPath!], with: .automatic)
-        case .update:
-            let cell = tableView.cellForRow(at: indexPath!) as! ProjectCell
-            configure(cell: cell, for: indexPath!)
-        case .move: //not tested
-            tableView.deleteRows(at: [indexPath!], with: .automatic)
-            tableView.insertRows(at: [newIndexPath!], with: .automatic)
-        default: break
+        if !searchController.isActive || searchController.searchBar.text == "" { //if searchController is not active or empty text
+            //update projects
+            guard let updatedProjects = controller.fetchedObjects as? [Project] else { return }
+            projects = updatedProjects
+            //update tableVie
+            switch type {
+            case .insert:
+                tableView.insertRows(at: [newIndexPath!], with: .automatic)
+            case .delete:
+                tableView.deleteRows(at: [indexPath!], with: .automatic)
+            case .update:
+                let cell = tableView.cellForRow(at: indexPath!) as! ProjectCell
+                configure(cell: cell, for: indexPath!)
+            case .move: //not tested
+                tableView.deleteRows(at: [indexPath!], with: .automatic)
+                tableView.insertRows(at: [newIndexPath!], with: .automatic)
+            default: break
+            }
         }
     }
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
@@ -130,19 +132,21 @@ extension ProjectController: NSFetchedResultsControllerDelegate {
     }
     //Needed for updating sections
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
-        let indexSet = IndexSet(integer: sectionIndex)
-        switch type {
-        case .insert:
-            tableView.insertSections(indexSet, with: .automatic)
-        case .delete:
-            tableView.deleteSections(indexSet, with: .automatic)
-        case .update: //not tested
-            tableView.deleteSections(indexSet, with: .automatic)
-            tableView.insertSections(indexSet, with: .automatic)
-        case .move: //not tested
-            tableView.deleteSections(indexSet, with: .automatic)
-            tableView.insertSections(indexSet, with: .automatic)
-        default: break
+        if !searchController.isActive || searchController.searchBar.text == "" { //if searchController is not active or empty text
+            let indexSet = IndexSet(integer: sectionIndex)
+            switch type {
+            case .insert:
+                tableView.insertSections(indexSet, with: .automatic)
+            case .delete:
+                tableView.deleteSections(indexSet, with: .automatic)
+            case .update: //not tested
+                tableView.deleteSections(indexSet, with: .automatic)
+                tableView.insertSections(indexSet, with: .automatic)
+            case .move: //not tested
+                tableView.deleteSections(indexSet, with: .automatic)
+                tableView.insertSections(indexSet, with: .automatic)
+            default: break
+            }
         }
     }
 }
