@@ -57,7 +57,7 @@ class TaskEntryController: UIViewController {
         label.numberOfLines = 1
         return label
     }()
-    private lazy var dateTextField: UITextField = {
+    private lazy var dateField: UITextField = {
         let textField = UITextField()
         textField.delegate = self
         textField.font = .font(size: 18, weight: .medium, design: .rounded)
@@ -72,8 +72,20 @@ class TaskEntryController: UIViewController {
         textField.clearButtonMode = .always
         textField.returnKeyType = .done
         textField.setPadding(left: 15, right: 15)
+        let doneButton = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(self.dismissKeyboard))
+        let toolBar = UIToolbar.init(frame: CGRect(x: 0, y: 0, width: view.bounds.size.width, height: 44))
+        toolBar.setItems([UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil), doneButton], animated: true)
+        textField.inputAccessoryView = toolBar
+        textField.inputView = datePicker
         return textField
     }()
+    private lazy var datePicker: UIDatePicker = {
+        let datePicker = UIDatePicker.init(frame: CGRect(x: 0, y: 0, width: view.bounds.size.width, height: 200))
+        datePicker.datePickerMode = .dateAndTime
+        datePicker.addTarget(self, action: #selector(self.dateChanged), for: .allEvents)
+        return datePicker
+    }()
+    
     lazy var saveEditButton: UIBarButtonItem = {
         let barButton = UIBarButtonItem(title: "Save", style: .plain, target: self, action: #selector(self.handleSaveEditTask))
         return barButton
@@ -106,7 +118,7 @@ class TaskEntryController: UIViewController {
         saveEditButton.title = self.task == nil ? "Add" : "Save"
         guard let name = task.name, let dueDate = task.dueDate else { return }
         nameTextField.text = name
-        dateTextField.text = dueDate.dateToUTC
+        dateField.text = dueDate.dateToUTC
     }
     
     fileprivate func setupViews() {
@@ -121,8 +133,8 @@ class TaskEntryController: UIViewController {
     }
     
     fileprivate func constraintDateField() {
-        contentView.addSubview(dateTextField)
-        dateTextField.snp.makeConstraints { (make) in
+        contentView.addSubview(dateField)
+        dateField.snp.makeConstraints { (make) in
             make.top.equalTo(dateLabel.snp.bottom).offset(10)
             make.leading.equalTo(dateLabel.snp.leading)
             make.trailing.equalTo(dateLabel.snp.trailing)
@@ -186,6 +198,10 @@ class TaskEntryController: UIViewController {
         task.dueDate = modifiedDate
         task.isDone = false
         delegate?.didSaveTask(vc: self, didSave: true)
+    }
+    
+    @objc func dateChanged() {
+        dateField.text = "\(datePicker.date.dateToDueDate)"
     }
 }
 
