@@ -165,6 +165,7 @@ extension ProjectController: UITableViewDelegate {
         coreDataStack.saveContext()
         coordinator.goToTask(project: project)
     }
+    
     ///Newer Swipe To Delete or Edit
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         var selectedProject: Project! //get the project to update or delete
@@ -180,7 +181,7 @@ extension ProjectController: UITableViewDelegate {
         let editAction = UIContextualAction(style: .normal, title: "Edit") { (action, view, completion: @escaping ( Bool) -> Void) in
             self.coordinator.goToProjectEntry(fromVC: self, project: selectedProject)
         }
-        return UISwipeActionsConfiguration(actions: [deleteAction, editAction])
+        return UISwipeActionsConfiguration(actions: [editAction, deleteAction])
     }
     
     ///Title for each sections
