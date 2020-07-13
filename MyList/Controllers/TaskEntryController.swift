@@ -123,6 +123,9 @@ class TaskEntryController: UIViewController {
     
     fileprivate func setupViews() {
         view.backgroundColor = .systemBackground
+        let oneMinuteAfterNow: Date = Calendar.current.date(byAdding: .minute, value: 1, to: Date())! //add one minute to now
+        dateField.text = oneMinuteAfterNow.dateToDueDate
+        datePicker.date = oneMinuteAfterNow
         setupNavigationBar()
         constraintScrollView()
         constraintNameLabel()
@@ -194,7 +197,6 @@ class TaskEntryController: UIViewController {
         guard let name = nameTextField.text, !name.isEmpty else { return }
         task.name = name
         task.details = "No details"
-//        let modifiedDate = Calendar.current.date(byAdding: .day, value: 1, to: Date())! //add a day (24 hours) to today's date
         task.dueDate = datePicker.date
         task.isDone = false
         delegate?.didSaveTask(vc: self, didSave: true)
