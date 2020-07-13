@@ -6,7 +6,7 @@
 //  Copyright © 2020 SamuelFolledo. All rights reserved.
 //
 
-import UIKit
+import UIKit.UIFont
 
 extension UIFont {
     open class func font(size: CGFloat, weight: UIFont.Weight, design: UIFontDescriptor.SystemDesign) -> UIFont {
