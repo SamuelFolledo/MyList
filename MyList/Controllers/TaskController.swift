@@ -51,10 +51,10 @@ class TaskController: UIViewController {
         setupViews()
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        print(project.tasks)
-    }
+//    override func viewDidAppear(_ animated: Bool) {
+//        super.viewDidAppear(animated)
+//        print(project.tasks)
+//    }
     
     //MARK: Private Methods
     fileprivate func setupViews() {
@@ -156,15 +156,17 @@ extension TaskController: UITableViewDataSource {
 extension TaskController: TaskEntryDelegate {
     func didSaveTask(vc: TaskEntryController, didSave: Bool) {
         coordinator.navigationController.popViewController(animated: true)
-        guard didSave, let childContext = vc.childContext, childContext.hasChanges else { return }
-        guard let currentProject = childContext.object(with: self.project.objectID) as? Project, //fetch the project
+        guard didSave,
+            let childContext = vc.childContext,
+            childContext.hasChanges,
+            let currentProject = childContext.object(with: self.project.objectID) as? Project, //fetch the project
             let tasks = currentProject.tasks.mutableCopy() as? NSMutableOrderedSet //get tasks list
-            else { return }
+        else { return }
         for managedObject in childContext.registeredObjects { //get the task from childContext
             guard let task = managedObject as? Task else { continue }
             tasks.add(task) //add task to tasks
-            currentProject.tasks = tasks
         }
+        currentProject.tasks = tasks
         self.project = currentProject //update self.project
         childContext.perform { //save childContext before mainContext
             do {
