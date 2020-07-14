@@ -6,7 +6,7 @@
 //  Copyright © 2020 SamuelFolledo. All rights reserved.
 //
 
-import UIKit
+import UIKit.UIViewController
 
 extension UIViewController {
     func hideKeyboardOnTap() {
