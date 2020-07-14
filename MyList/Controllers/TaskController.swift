@@ -38,6 +38,15 @@ class TaskController: UIViewController {
         table.register(TaskCell.self, forCellReuseIdentifier: String(describing: TaskCell.self))
         return table
     }()
+    lazy var fetchedResultsController: NSFetchedResultsController<Task> = {
+        //create fetchResultsController
+        let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest,
+                                                                  managedObjectContext: coreDataStack.mainContext,
+                                                                  sectionNameKeyPath: nil, //#keyPath(Task.dueDate),
+                                                                  cacheName: nil)
+        fetchedResultsController.delegate = self
+        return fetchedResultsController
+    }()
     lazy var addTaskButton: UIBarButtonItem = {
         let barButton = UIBarButtonItem(title: "Add Task", style: .plain, target: self, action: #selector(self.handleAddTask))
         return barButton
