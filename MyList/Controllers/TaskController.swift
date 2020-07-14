@@ -72,10 +72,10 @@ class TaskController: UIViewController {
         setupViews()
     }
     
-//    override func viewDidAppear(_ animated: Bool) {
-//        super.viewDidAppear(animated)
-//        print(project.tasks)
-//    }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        segmentedControl.selectedSegmentIndex = 0
+    }
     
     //MARK: Private Methods
     fileprivate func setupViews() {
