@@ -14,6 +14,18 @@ class TaskController: UIViewController {
     weak var coordinator: MainCoordinator!
     weak var coreDataStack: CoreDataStack!
     var project: Project!
+    private lazy var fetchRequest: NSFetchRequest<Task> = {
+        //setup fetch request
+        let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
+        let dueDateSort = NSSortDescriptor(key: #keyPath(Task.dueDate), ascending: false)
+        let nameSort = NSSortDescriptor(key: #keyPath(Task.name), ascending: true) //cleaner way
+        fetchRequest.sortDescriptors = [dueDateSort, nameSort]
+        let shouldFetchDoneTasks = segmentedControl.selectedSegmentIndex == 0 ? false : true //true if user wants to see TODO tasks (TODO = 0, DONE = 1), then shouldFetchDoneTasks is false
+        let filterByProjectName = NSPredicate(format: "%K = %@ AND isDone = %@", "project.name", "\(project.name)", NSNumber(value: shouldFetchDoneTasks)) //fetch Tasks with a project's name property equal to selected project's name
+        fetchRequest.predicate = filterByProjectName
+        fetchRequest.fetchBatchSize = 10 //get 10 tasks at a time
+        return fetchRequest
+    }()
     
     //MARK: Properties Views
     lazy var tableView: UITableView = {
