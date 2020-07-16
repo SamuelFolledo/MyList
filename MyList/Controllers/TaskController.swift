@@ -17,8 +17,8 @@ class TaskController: UIViewController {
     private lazy var fetchRequest: NSFetchRequest<Task> = {
         //setup fetch request
         let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
-        let dueDateSort = NSSortDescriptor(key: #keyPath(Task.dueDate), ascending: false)
-        let nameSort = NSSortDescriptor(key: #keyPath(Task.name), ascending: true) //cleaner way
+        let dueDateSort = NSSortDescriptor(key: #keyPath(Task.dueDate), ascending: true) //soonest/overdue tasks first
+        let nameSort = NSSortDescriptor(key: #keyPath(Task.name), ascending: true)
         fetchRequest.sortDescriptors = [dueDateSort, nameSort]
         let shouldFetchDoneTasks = segmentedControl.selectedSegmentIndex == 0 ? false : true //true if user wants to see TODO tasks (TODO = 0, DONE = 1), then shouldFetchDoneTasks is false
         let filterByProjectName = NSPredicate(format: "%K = %@ AND isDone = %@", "project.name", "\(project.name)", NSNumber(value: shouldFetchDoneTasks)) //fetch Tasks with a project's name property equal to selected project's name
@@ -62,7 +62,7 @@ class TaskController: UIViewController {
                                                  NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18, weight: .bold)], for: .normal)
         segmentedControl.setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.white,
                                                  NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18, weight: .bold)], for: .selected)
-        segmentedControl.addTarget(self, action: #selector(switchTaskList), for: .valueChanged)
+        segmentedControl.addTarget(self, action: #selector(fetchTasks), for: .valueChanged)
         return segmentedControl
     }()
     
@@ -82,6 +82,20 @@ class TaskController: UIViewController {
         view.backgroundColor = .systemBackground
         setupNavigationBar()
         constraintViews()
+        fetchTasks()
+    }
+    
+    ///check which tasks user wants to see and update predicate before performing fetch, then reload data
+    @objc fileprivate func fetchTasks() {
+        do {
+            let shouldFetchDoneTasks = segmentedControl.selectedSegmentIndex == 0 ? false : true //true if user wants to see TODO tasks (TODO = 0, DONE = 1), then shouldFetchDoneTasks is false
+            let filterByProjectName = NSPredicate(format: "%K = %@ AND isDone = %@", "project.name", "\(project.name)", NSNumber(value: shouldFetchDoneTasks)) //fetch Tasks with a project's name property equal to selected project's name
+            fetchedResultsController.fetchRequest.predicate = filterByProjectName
+            try fetchedResultsController.performFetch()
+            tableView.reloadData()
+        } catch {
+            print(error)
+        }
     }
     
     fileprivate func constraintViews() {
@@ -110,16 +124,6 @@ class TaskController: UIViewController {
         coordinator.goToTaskEntry(fromVC: self, task: nil)
     }
     
-    @objc func switchTaskList() {
-        tableView.reloadData()
-//        switch segmentedControl.selectedSegmentIndex {
-//        case 0:
-//
-//        default:
-
-//        }
-    }
-    
     fileprivate func animateCell(cell: TaskCell, toLeft: Bool) {
         let cellLocation = cell.convert(cell.center, from: cell.superview) //get the cell's position
         let cellDestination = toLeft ? tableView.bounds.width : -tableView.bounds.width //get left or right of tableView
@@ -131,46 +135,147 @@ class TaskController: UIViewController {
     }
 }
 
-extension TaskController: UITableViewDelegate{
+// MARK: - Internal
+extension TaskController {
+    func configure(cell: UITableViewCell, for indexPath: IndexPath) {
+        guard let cell = cell as? TaskCell else { return }
+        var task: Task!
+//        if searchController.isActive && searchController.searchBar.text != "" {
+//            project = filteredProjects[indexPath.row]
+//        } else {
+//            project = fetchedResultsController.object(at: indexPath)
+//        }
+//        switch self.segmentedControl.selectedSegmentIndex {
+//        case 0: //to do tasks
+//            task = self.project.toDoTasks[indexPath.row]
+//        default: //done tasks
+//            task = self.project.doneTasks[indexPath.row]
+//        }
+        task = fetchedResultsController.object(at: indexPath)
+        cell.task = task
+    }
+}
+
+//MARK: TableView Delegate
+extension TaskController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         var task: Task!
         var toLeft: Bool = true
         switch self.segmentedControl.selectedSegmentIndex {
         case 0: //to do tasks
-            task = self.project.toDoTasks[indexPath.row]
+//            task = self.project.toDoTasks[indexPath.row]
+            toLeft = true
         default: //done tasks
             toLeft = false
-            task = self.project.doneTasks[indexPath.row]
+//            task = self.project.doneTasks[indexPath.row]
         }
+        task = fetchedResultsController.object(at: indexPath)
         task.isDone = !task.isDone
         guard let tappedCell = tableView.cellForRow(at: indexPath) as? TaskCell else { return }
-        tappedCell.task = task
-        animateCell(cell: tappedCell, toLeft: toLeft)
+        tappedCell.task = task //update cell's task and its views
+        coreDataStack.saveContext()
+//        animateCell(cell: tappedCell, toLeft: toLeft)
+    }
+    
+    func deleteCell(cell: TaskCell, toLeft: Bool) {
+        
     }
 }
 
+//MARK: TableView DataSource
 extension TaskController: UITableViewDataSource {
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return fetchedResultsController.sections?.count ?? 0
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        switch segmentedControl.selectedSegmentIndex {
-        case 0: //to do
-            return project.toDoTasks.count
-        default:
-            return project.doneTasks.count
-        }
+        let sectionInfo = fetchedResultsController.sections![section]
+        return sectionInfo.numberOfObjects
+//        switch segmentedControl.selectedSegmentIndex {
+//        case 0: //to do
+//            return project.toDoTasks.count
+//        default:
+//            return project.doneTasks.count
+//        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: TaskCell = tableView.dequeueReusableCell(withIdentifier: String(describing: TaskCell.self), for: indexPath) as! TaskCell
         var task: Task!
-        switch segmentedControl.selectedSegmentIndex {
-        case 0: //to do
-            task = project.toDoTasks[indexPath.row]
-        default:
-            task = project.doneTasks[indexPath.row]
-        }
+//        switch segmentedControl.selectedSegmentIndex {
+//        case 0: //to do
+//            task = project.toDoTasks[indexPath.row]
+//        default:
+//            task = project.doneTasks[indexPath.row]
+//        }
+        task = fetchedResultsController.object(at: indexPath)
         cell.task = task
         return cell
     }
+}
+
+// MARK: NSFetchedResultsController Delegate
+extension TaskController: NSFetchedResultsControllerDelegate {
+    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        tableView.beginUpdates()
+    }
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+        switch type {
+        case .insert:
+            tableView.insertRows(at: [newIndexPath!], with: .automatic)
+        case .delete:
+            let deleteAnimation: UITableView.RowAnimation = segmentedControl.selectedSegmentIndex == 0 ? .right : .left
+            tableView.deleteRows(at: [indexPath!], with: deleteAnimation)
+        case .update:
+            let cell = tableView.cellForRow(at: indexPath!) as! TaskCell
+            configure(cell: cell, for: indexPath!)
+        case .move: //not tested
+            tableView.deleteRows(at: [indexPath!], with: .automatic)
+            tableView.insertRows(at: [newIndexPath!], with: .automatic)
+        default: break
+        }
+//        if !searchController.isActive || searchController.searchBar.text == "" { //if searchController is not active or empty text
+//            //update projects
+//            guard let updatedProjects = controller.fetchedObjects as? [Project] else { return }
+//            projects = updatedProjects
+//            //update tableVie
+//            switch type {
+//            case .insert:
+//                tableView.insertRows(at: [newIndexPath!], with: .automatic)
+//            case .delete:
+//                tableView.deleteRows(at: [indexPath!], with: .automatic)
+//            case .update:
+//                let cell = tableView.cellForRow(at: indexPath!) as! ProjectCell
+//                configure(cell: cell, for: indexPath!)
+//            case .move: //not tested
+//                tableView.deleteRows(at: [indexPath!], with: .automatic)
+//                tableView.insertRows(at: [newIndexPath!], with: .automatic)
+//            default: break
+//            }
+//        }
+    }
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        tableView.endUpdates()
+    }
+    //Needed for updating sections
+//    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
+////        if !searchController.isActive || searchController.searchBar.text == "" { //if searchController is not active or empty text
+//            let indexSet = IndexSet(integer: sectionIndex)
+//            switch type {
+//            case .insert:
+//                tableView.insertSections(indexSet, with: .automatic)
+//            case .delete:
+//                tableView.deleteSections(indexSet, with: .automatic)
+//            case .update: //not tested
+//                tableView.deleteSections(indexSet, with: .automatic)
+//                tableView.insertSections(indexSet, with: .automatic)
+//            case .move: //not tested
+//                tableView.deleteSections(indexSet, with: .automatic)
+//                tableView.insertSections(indexSet, with: .automatic)
+//            default: break
+//            }
+////        }
+//    }
 }
 
 //MARK: Task Entry Delegate
@@ -180,15 +285,17 @@ extension TaskController: TaskEntryDelegate {
         guard didSave,
             let childContext = vc.childContext,
             childContext.hasChanges,
-            let currentProject = childContext.object(with: self.project.objectID) as? Project, //fetch the project
-            let tasks = currentProject.tasks.mutableCopy() as? NSMutableOrderedSet //get tasks list
+            let currentProject = childContext.object(with: self.project.objectID) as? Project, //fetch the project with the childContext that contains the newly created Task
+            let tasks = currentProject.tasks.mutableCopy() as? NSMutableOrderedSet //get project's tasks list
         else { return }
         for managedObject in childContext.registeredObjects { //get the task from childContext
-            guard let task = managedObject as? Task else { continue }
+            guard let task = managedObject as? Task, //convert managedObject to Task
+                !tasks.contains(task) //ensure task does not exist yet, else go to next object
+            else { continue }
             tasks.add(task) //add task to tasks
         }
         currentProject.tasks = tasks
-        self.project = currentProject //update self.project
+        self.project = coreDataStack.mainContext.object(with: currentProject.objectID) as? Project //update project
         childContext.perform { //save childContext before mainContext
             do {
                 try childContext.save()
