@@ -29,11 +29,14 @@ class TaskController: UIViewController {
     
     //MARK: Properties Views
     lazy var tableView: UITableView = {
-        let table = UITableView()
+        let table = UITableView(frame: .zero, style: .insetGrouped)
         table.rowHeight = 70
+        table.sectionHeaderHeight = 40
         table.delegate = self
         table.dataSource = self
-        table.separatorStyle = .none
+        table.backgroundColor = .clear
+        table.separatorColor = .black
+        table.separatorStyle = .singleLine
         table.tableFooterView = UIView()
         table.register(TaskCell.self, forCellReuseIdentifier: String(describing: TaskCell.self))
         return table
@@ -42,7 +45,7 @@ class TaskController: UIViewController {
         //create fetchResultsController
         let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest,
                                                                   managedObjectContext: coreDataStack.mainContext,
-                                                                  sectionNameKeyPath: nil, //#keyPath(Task.dueDate),
+                                                                  sectionNameKeyPath: #keyPath(Task.overDueStatus), //#keyPath(Task.dueDate),
                                                                   cacheName: nil)
         fetchedResultsController.delegate = self
         return fetchedResultsController
@@ -108,7 +111,7 @@ class TaskController: UIViewController {
         }
         self.view.addSubview(tableView)
         tableView.snp.makeConstraints { (make) in
-            make.top.equalTo(segmentedControl.snp.bottom)
+            make.top.equalTo(segmentedControl.snp.bottom).offset(10)
             make.leading.equalTo(view.safeAreaLayoutGuide.snp.leading)
             make.trailing.equalTo(view.safeAreaLayoutGuide.snp.trailing)
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
@@ -140,7 +143,11 @@ extension TaskController {
     func configure(cell: UITableViewCell, for indexPath: IndexPath) {
         guard let cell = cell as? TaskCell else { return }
         var task: Task!
-        task = fetchedResultsController.object(at: indexPath)
+        if segmentedControl.selectedSegmentIndex == 0 {
+            task = fetchedResultsController.object(at: indexPath)
+        } else {
+            task = fetchedResultsController.fetchedObjects![indexPath.row]
+        }
         cell.task = task
     }
 }
@@ -149,7 +156,11 @@ extension TaskController {
 extension TaskController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         var task: Task!
-        task = fetchedResultsController.object(at: indexPath)
+        if segmentedControl.selectedSegmentIndex == 0 {
+            task = fetchedResultsController.object(at: indexPath)
+        } else {
+            task = fetchedResultsController.fetchedObjects![indexPath.row]
+        }
         task.isDone = !task.isDone
         guard let tappedCell = tableView.cellForRow(at: indexPath) as? TaskCell else { return }
         tappedCell.task = task //update cell's task and its views
@@ -168,24 +179,49 @@ extension TaskController: UITableViewDelegate {
         }
         return UISwipeActionsConfiguration(actions: [editAction, deleteAction])
     }
+    
+    ///view for header
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        if segmentedControl.selectedSegmentIndex == 0 { //Add header for to do tasks only that are overdue
+            guard let overdueStatus = fetchedResultsController.sections?[section].name, overdueStatus != "" else { //if there is no or nil status
+                return nil
+            }
+            let headerView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 50))
+            headerView.backgroundColor = UIColor.clear
+            let label = UILabel()
+            label.frame = CGRect(x: 0, y: 5, width: headerView.frame.width-10, height: headerView.frame.height-10)
+            label.text = "\(overdueStatus)"
+            label.font = UIFont.systemFont(ofSize: 20, weight: .semibold) //UIFont().futuraPTMediumFont(16) // my custom font
+            label.textColor = UIColor.label
+            headerView.addSubview(label)
+            return headerView
+        }
+        return nil
+    }
 }
 
 //MARK: TableView DataSource
 extension TaskController: UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
-        return fetchedResultsController.sections?.count ?? 0
+        if segmentedControl.selectedSegmentIndex == 0 {
+            return fetchedResultsController.sections?.count ?? 0
+        } else { //in done tasks
+            return 1
+        }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        let sectionInfo = fetchedResultsController.sections![section]
-        return sectionInfo.numberOfObjects
+        if segmentedControl.selectedSegmentIndex == 0 {
+            let sectionInfo = fetchedResultsController.sections![section]
+            return sectionInfo.numberOfObjects
+        } else {
+            return fetchedResultsController.fetchedObjects?.count ?? 0
+        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: TaskCell = tableView.dequeueReusableCell(withIdentifier: String(describing: TaskCell.self), for: indexPath) as! TaskCell
-        var task: Task!
-        task = fetchedResultsController.object(at: indexPath)
-        cell.task = task
+        configure(cell: cell, for: indexPath)
         return cell
     }
 }
@@ -196,7 +232,6 @@ extension TaskController: NSFetchedResultsControllerDelegate {
         tableView.beginUpdates()
     }
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
-        
         switch type {
         case .insert:
             tableView.insertRows(at: [newIndexPath!], with: .automatic)
@@ -211,30 +246,28 @@ extension TaskController: NSFetchedResultsControllerDelegate {
             tableView.insertRows(at: [newIndexPath!], with: .automatic)
         default: break
         }
-        
     }
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         tableView.endUpdates()
     }
     //Needed for updating sections
-//    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
-////        if !searchController.isActive || searchController.searchBar.text == "" { //if searchController is not active or empty text
-//            let indexSet = IndexSet(integer: sectionIndex)
-//            switch type {
-//            case .insert:
-//                tableView.insertSections(indexSet, with: .automatic)
-//            case .delete:
-//                tableView.deleteSections(indexSet, with: .automatic)
-//            case .update: //not tested
-//                tableView.deleteSections(indexSet, with: .automatic)
-//                tableView.insertSections(indexSet, with: .automatic)
-//            case .move: //not tested
-//                tableView.deleteSections(indexSet, with: .automatic)
-//                tableView.insertSections(indexSet, with: .automatic)
-//            default: break
-//            }
-////        }
-//    }
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
+        let indexSet = IndexSet(integer: sectionIndex)
+        switch type {
+        case .insert:
+            tableView.insertSections(indexSet, with: .automatic)
+        case .delete:
+            let deleteAnimation: UITableView.RowAnimation = self.segmentedControl.selectedSegmentIndex == 0 ? .right : .left
+            tableView.deleteSections(indexSet, with: deleteAnimation)
+        case .update: //not tested
+            tableView.deleteSections(indexSet, with: .automatic)
+            tableView.insertSections(indexSet, with: .automatic)
+        case .move: //not tested
+            tableView.deleteSections(indexSet, with: .automatic)
+            tableView.insertSections(indexSet, with: .automatic)
+        default: break
+        }
+    }
 }
 
 //MARK: Task Entry Delegate
