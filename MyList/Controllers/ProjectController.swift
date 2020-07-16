@@ -38,7 +38,9 @@ class ProjectController: UIViewController {
         return fetchedResultsController
     }()
     lazy var tableView: UITableView = {
-        let table = UITableView()
+        let table = UITableView.init(frame: .zero, style: .grouped)
+        table.sectionHeaderHeight = 40
+        table.backgroundColor = .systemBackground
         table.rowHeight = 100
         table.delegate = self
         table.dataSource = self
@@ -64,6 +66,11 @@ class ProjectController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.tintColor = .systemBlue
     }
     
     //MARK: Private Methods
@@ -184,13 +191,21 @@ extension ProjectController: UITableViewDelegate {
         return UISwipeActionsConfiguration(actions: [editAction, deleteAction])
     }
     
-    ///Title for each sections
-    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+    ///view for header
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         if searchController.isActive && searchController.searchBar.text != "" {
             return nil //no section title when searching
         } else {
+            let headerView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 40))
+            headerView.backgroundColor = UIColor.systemBackground
+            let label = UILabel()
+            label.frame = CGRect(x: 20, y: 5, width: headerView.frame.width-10, height: headerView.frame.height-10)
             let lastOpenedDate = fetchedResultsController.sections?[section].name
-            return "Last Opened: \(lastOpenedDate!)"
+            label.text = "Last Opened: \(lastOpenedDate!)"
+            label.font = UIFont.systemFont(ofSize: 20, weight: .semibold) //UIFont().futuraPTMediumFont(16) // my custom font
+            label.textColor = UIColor.label
+            headerView.addSubview(label)
+            return headerView
         }
     }
 }
