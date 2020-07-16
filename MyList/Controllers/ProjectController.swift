@@ -24,7 +24,7 @@ class ProjectController: UIViewController {
     lazy var fetchedResultsController: NSFetchedResultsController<Project> = {
         //setup fetch request
         let fetchRequest: NSFetchRequest<Project> = Project.fetchRequest()
-        let lastOpenedSort = NSSortDescriptor(key: "lastOpenedDate", ascending: false)
+        let lastOpenedSort = NSSortDescriptor(key: "lastOpenedDate", ascending: false) //sort by lastOpenedDate, most recent first
         let nameSort = NSSortDescriptor(key: #keyPath(Project.name), ascending: true) //cleaner way
         let taskLeftSort = NSSortDescriptor(key: "taskLeft", ascending: false)
         fetchRequest.sortDescriptors = [lastOpenedSort, nameSort, taskLeftSort]
@@ -78,6 +78,9 @@ class ProjectController: UIViewController {
         view.backgroundColor = .systemBackground
         setupNavigationBar()
         constraintTableView()
+        fetchProjects()
+    }
+    fileprivate func fetchProjects() {
         do {
             try fetchedResultsController.performFetch()
             projects = fetchedResultsController.fetchedObjects!
