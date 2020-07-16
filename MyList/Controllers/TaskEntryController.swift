@@ -119,7 +119,7 @@ class TaskEntryController: UIViewController {
         guard let name = task.name, let dueDate = task.dueDate else { return }
         nameTextField.text = name
         dateField.text = dueDate.dateToDueDate
-        datePicker.date = dueDate
+        datePicker.date = dueDate //set datePicker as well
     }
     
     fileprivate func setupViews() {
