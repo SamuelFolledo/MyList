@@ -118,7 +118,8 @@ class TaskEntryController: UIViewController {
         saveEditButton.title = self.task == nil ? "Add" : "Save"
         guard let name = task.name, let dueDate = task.dueDate else { return }
         nameTextField.text = name
-        dateField.text = dueDate.dateToUTC
+        dateField.text = dueDate.dateToDueDate
+        datePicker.date = dueDate
     }
     
     fileprivate func setupViews() {
