@@ -155,6 +155,19 @@ extension TaskController: UITableViewDelegate {
         tappedCell.task = task //update cell's task and its views
         coreDataStack.saveContext()
     }
+    
+    ///Newer Swipe To Delete or Edit
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let swipedTask: Task = fetchedResultsController.object(at: indexPath)
+        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { (action, view, completion: @escaping ( Bool) -> Void) in
+            self.coreDataStack.mainContext.delete(swipedTask)
+            self.coreDataStack.saveContext()
+        }
+        let editAction = UIContextualAction(style: .normal, title: "Edit") { (action, view, completion: @escaping ( Bool) -> Void) in
+            self.coordinator.goToTaskEntry(fromVC: self, task: swipedTask)
+        }
+        return UISwipeActionsConfiguration(actions: [editAction, deleteAction])
+    }
 }
 
 //MARK: TableView DataSource
@@ -183,20 +196,22 @@ extension TaskController: NSFetchedResultsControllerDelegate {
         tableView.beginUpdates()
     }
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+        
         switch type {
         case .insert:
             tableView.insertRows(at: [newIndexPath!], with: .automatic)
         case .delete:
-            let deleteAnimation: UITableView.RowAnimation = segmentedControl.selectedSegmentIndex == 0 ? .right : .left
+            let deleteAnimation: UITableView.RowAnimation = self.segmentedControl.selectedSegmentIndex == 0 ? .right : .left
             tableView.deleteRows(at: [indexPath!], with: deleteAnimation)
         case .update:
             let cell = tableView.cellForRow(at: indexPath!) as! TaskCell
-            configure(cell: cell, for: indexPath!)
+            self.configure(cell: cell, for: indexPath!)
         case .move: //not tested
             tableView.deleteRows(at: [indexPath!], with: .automatic)
             tableView.insertRows(at: [newIndexPath!], with: .automatic)
         default: break
         }
+        
     }
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         tableView.endUpdates()
