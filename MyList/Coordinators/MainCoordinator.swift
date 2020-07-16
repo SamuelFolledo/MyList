@@ -57,6 +57,7 @@ class MainCoordinator: Coordinator {
         vc.coreDataStack = coreDataStack
         vc.coordinator = self
         vc.title = project.name
+        navigationController.navigationBar.tintColor = project.color
         navigationController.pushViewController(vc, animated: true)
     }
     
