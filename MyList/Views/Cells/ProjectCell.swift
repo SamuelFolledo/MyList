@@ -18,7 +18,7 @@ class ProjectCell: UITableViewCell {
     //MARK: View Properties
     lazy var containerView: UIView = {
         let view: UIView = UIView(frame: .zero)
-        view.backgroundColor = .systemFill
+        view.backgroundColor = .systemGray6
         view.layer.masksToBounds = true
         view.layer.cornerRadius = 10
         view.layer.borderColor = UIColor.clear.cgColor
@@ -99,6 +99,7 @@ class ProjectCell: UITableViewCell {
     
     //MARK: Private Methods
     func setupViews() {
+        contentView.backgroundColor = .clear
         contentView.addSubview(containerView)
         containerView.snp.makeConstraints { (make) in
             make.top.equalToSuperview().offset(10)
