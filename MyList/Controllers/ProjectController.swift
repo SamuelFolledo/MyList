@@ -26,7 +26,7 @@ class ProjectController: UIViewController {
         let fetchRequest: NSFetchRequest<Project> = Project.fetchRequest()
         let lastOpenedSort = NSSortDescriptor(key: "lastOpenedDate", ascending: false) //sort by lastOpenedDate, most recent first
         let nameSort = NSSortDescriptor(key: #keyPath(Project.name), ascending: true) //cleaner way
-        let taskLeftSort = NSSortDescriptor(key: "taskLeft", ascending: false)
+        let taskLeftSort = NSSortDescriptor(key: "taskLeft", ascending: false) //sorts by amount of tasks left
         fetchRequest.sortDescriptors = [lastOpenedSort, nameSort, taskLeftSort]
         fetchRequest.fetchBatchSize = 20
         //create fetchResultsController
@@ -82,8 +82,8 @@ class ProjectController: UIViewController {
     }
     fileprivate func fetchProjects() {
         do {
-            try fetchedResultsController.performFetch()
-            projects = fetchedResultsController.fetchedObjects!
+            try fetchedResultsController.performFetch() //perform fetch
+            projects = fetchedResultsController.fetchedObjects! //update projects array
         } catch {
             print(error)
         }
@@ -149,10 +149,10 @@ extension ProjectController: NSFetchedResultsControllerDelegate {
                 tableView.insertSections(indexSet, with: .automatic)
             case .delete:
                 tableView.deleteSections(indexSet, with: .automatic)
-            case .update: //not tested
+            case .update: //not tested/used
                 tableView.deleteSections(indexSet, with: .automatic)
                 tableView.insertSections(indexSet, with: .automatic)
-            case .move: //not tested
+            case .move: //not tested/used
                 tableView.deleteSections(indexSet, with: .automatic)
                 tableView.insertSections(indexSet, with: .automatic)
             default: break
