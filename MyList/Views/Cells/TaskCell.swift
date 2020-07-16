@@ -80,6 +80,11 @@ class TaskCell: UITableViewCell {
     
     //MARK: Private Methods
     func setupViews() {
+        contentView.backgroundColor = .systemGray6
+        //resize cell's line separator
+        preservesSuperviewLayoutMargins = false
+        separatorInset = UIEdgeInsets.init(top: 0, left: 16, bottom: 0, right: 16)
+        layoutMargins = UIEdgeInsets.init(top: 0, left: 16, bottom: 0, right: 16)
         //add mainStackView to content view
         contentView.addSubview(mainStackView)
         mainStackView.snp.makeConstraints { (make) in
