@@ -31,7 +31,6 @@ class TaskController: UIViewController {
     lazy var tableView: UITableView = {
         let table = UITableView(frame: .zero, style: .insetGrouped)
         table.rowHeight = 70
-        table.sectionHeaderHeight = 40
         table.delegate = self
         table.dataSource = self
         table.backgroundColor = .clear
@@ -252,20 +251,22 @@ extension TaskController: NSFetchedResultsControllerDelegate {
     }
     //Needed for updating sections
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
-        let indexSet = IndexSet(integer: sectionIndex)
-        switch type {
-        case .insert:
-            tableView.insertSections(indexSet, with: .automatic)
-        case .delete:
-            let deleteAnimation: UITableView.RowAnimation = self.segmentedControl.selectedSegmentIndex == 0 ? .right : .left
-            tableView.deleteSections(indexSet, with: deleteAnimation)
-        case .update: //not tested
-            tableView.deleteSections(indexSet, with: .automatic)
-            tableView.insertSections(indexSet, with: .automatic)
-        case .move: //not tested
-            tableView.deleteSections(indexSet, with: .automatic)
-            tableView.insertSections(indexSet, with: .automatic)
-        default: break
+        if segmentedControl.selectedSegmentIndex == 0 { //edit sections only for todo tasks
+            let indexSet = IndexSet(integer: sectionIndex)
+            switch type {
+            case .insert:
+                tableView.insertSections(indexSet, with: .automatic)
+            case .delete:
+                let deleteAnimation: UITableView.RowAnimation = self.segmentedControl.selectedSegmentIndex == 0 ? .right : .left
+                tableView.deleteSections(indexSet, with: deleteAnimation)
+            case .update: //not tested
+                tableView.deleteSections(indexSet, with: .automatic)
+                tableView.insertSections(indexSet, with: .automatic)
+            case .move: //not tested
+                tableView.deleteSections(indexSet, with: .automatic)
+                tableView.insertSections(indexSet, with: .automatic)
+            default: break
+            }
         }
     }
 }
@@ -274,18 +275,21 @@ extension TaskController: NSFetchedResultsControllerDelegate {
 extension TaskController: TaskEntryDelegate {
     func didSaveTask(vc: TaskEntryController, didSave: Bool) {
         coordinator.navigationController.popViewController(animated: true)
+        //1. check if user wanted to save, there is childContext, there are changes, project still exist, and we can get its tasks
         guard didSave,
             let childContext = vc.childContext,
             childContext.hasChanges,
-            let currentProject = childContext.object(with: self.project.objectID) as? Project, //fetch the project with the childContext that contains the newly created Task
-            let tasks = currentProject.tasks.mutableCopy() as? NSMutableOrderedSet //get project's tasks list
+            let currentProject = childContext.object(with: self.project.objectID) as? Project, //fetch the project with the childContext that contains the newly created Task (this makes sure project and tasks are under the same context)
+            let tasks = currentProject.tasks.mutableCopy() as? NSMutableOrderedSet
         else { return }
+        //2.loop through each objects in childContext's objects that are tasks
         for managedObject in childContext.registeredObjects { //get the task from childContext
             guard let task = managedObject as? Task, //convert managedObject to Task
                 !tasks.contains(task) //ensure task does not exist yet, else go to next object
             else { continue }
             tasks.add(task) //add task to tasks
         }
+        //3. Update project's task with the new/editted tasks and save it on the child then at mainContext
         currentProject.tasks = tasks
         self.project = coreDataStack.mainContext.object(with: currentProject.objectID) as? Project //update project
         childContext.perform { //save childContext before mainContext
