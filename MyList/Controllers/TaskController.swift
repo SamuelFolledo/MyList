@@ -140,17 +140,6 @@ extension TaskController {
     func configure(cell: UITableViewCell, for indexPath: IndexPath) {
         guard let cell = cell as? TaskCell else { return }
         var task: Task!
-//        if searchController.isActive && searchController.searchBar.text != "" {
-//            project = filteredProjects[indexPath.row]
-//        } else {
-//            project = fetchedResultsController.object(at: indexPath)
-//        }
-//        switch self.segmentedControl.selectedSegmentIndex {
-//        case 0: //to do tasks
-//            task = self.project.toDoTasks[indexPath.row]
-//        default: //done tasks
-//            task = self.project.doneTasks[indexPath.row]
-//        }
         task = fetchedResultsController.object(at: indexPath)
         cell.task = task
     }
@@ -160,25 +149,11 @@ extension TaskController {
 extension TaskController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         var task: Task!
-        var toLeft: Bool = true
-        switch self.segmentedControl.selectedSegmentIndex {
-        case 0: //to do tasks
-//            task = self.project.toDoTasks[indexPath.row]
-            toLeft = true
-        default: //done tasks
-            toLeft = false
-//            task = self.project.doneTasks[indexPath.row]
-        }
         task = fetchedResultsController.object(at: indexPath)
         task.isDone = !task.isDone
         guard let tappedCell = tableView.cellForRow(at: indexPath) as? TaskCell else { return }
         tappedCell.task = task //update cell's task and its views
         coreDataStack.saveContext()
-//        animateCell(cell: tappedCell, toLeft: toLeft)
-    }
-    
-    func deleteCell(cell: TaskCell, toLeft: Bool) {
-        
     }
 }
 
@@ -191,23 +166,11 @@ extension TaskController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         let sectionInfo = fetchedResultsController.sections![section]
         return sectionInfo.numberOfObjects
-//        switch segmentedControl.selectedSegmentIndex {
-//        case 0: //to do
-//            return project.toDoTasks.count
-//        default:
-//            return project.doneTasks.count
-//        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: TaskCell = tableView.dequeueReusableCell(withIdentifier: String(describing: TaskCell.self), for: indexPath) as! TaskCell
         var task: Task!
-//        switch segmentedControl.selectedSegmentIndex {
-//        case 0: //to do
-//            task = project.toDoTasks[indexPath.row]
-//        default:
-//            task = project.doneTasks[indexPath.row]
-//        }
         task = fetchedResultsController.object(at: indexPath)
         cell.task = task
         return cell
@@ -234,25 +197,6 @@ extension TaskController: NSFetchedResultsControllerDelegate {
             tableView.insertRows(at: [newIndexPath!], with: .automatic)
         default: break
         }
-//        if !searchController.isActive || searchController.searchBar.text == "" { //if searchController is not active or empty text
-//            //update projects
-//            guard let updatedProjects = controller.fetchedObjects as? [Project] else { return }
-//            projects = updatedProjects
-//            //update tableVie
-//            switch type {
-//            case .insert:
-//                tableView.insertRows(at: [newIndexPath!], with: .automatic)
-//            case .delete:
-//                tableView.deleteRows(at: [indexPath!], with: .automatic)
-//            case .update:
-//                let cell = tableView.cellForRow(at: indexPath!) as! ProjectCell
-//                configure(cell: cell, for: indexPath!)
-//            case .move: //not tested
-//                tableView.deleteRows(at: [indexPath!], with: .automatic)
-//                tableView.insertRows(at: [newIndexPath!], with: .automatic)
-//            default: break
-//            }
-//        }
     }
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         tableView.endUpdates()
