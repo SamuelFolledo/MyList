@@ -86,6 +86,7 @@ class TaskController: UIViewController {
         setupNavigationBar()
         constraintViews()
         fetchTasks()
+        LocalNotificationManager.requestLocalNotification { _,_ in }
     }
     
     ///check which tasks user wants to see and update predicate before performing fetch, then reload data
@@ -134,6 +135,41 @@ class TaskController: UIViewController {
             cell.center = cellLocation.applying(CGAffineTransform(translationX: cellDestination, y: 0))
         }) { (_) in
             self.tableView.reloadData()
+        }
+    }
+    
+    fileprivate func addLocalNotification(task: Task) {
+        //Add a 5 minutes before dueDate local notification
+        let taskDueDateMinus5Mins = Calendar.autoupdatingCurrent.date(byAdding: .minute, value: -5, to: task.dueDate!)!
+        if taskDueDateMinus5Mins > Date() { //make sure date is upcoming, not previous date
+            LocalNotificationManager.schedule(title: "Last 5 Minute Reminder",
+                                       message: "\(project.name)'s \(task.name!) is due in 5 minutes",
+                                       userInfo: ["projectName": "\(project.name)"],
+                                       task: task,
+                                       dueDate: taskDueDateMinus5Mins) { (error) in
+                DispatchQueue.main.async {
+                    guard error == nil else {
+                        self.presentAlert(title: "Notification Error", message: error!)
+                        return
+                    }
+                }
+            }
+        }
+        //Add a 24 hours before dueDate local notification
+        let taskDueDateMinus24Hours = Calendar.autoupdatingCurrent.date(byAdding: .hour, value: -24, to: task.dueDate!)!
+        if taskDueDateMinus24Hours > Date() { //make sure date is upcoming, not previous date
+            LocalNotificationManager.schedule(title: "Unfinished Tasks Reminder",
+                                       message: "\(project.name)'s \(task.name!) is due tomorrow, at \(task.dueDate!.toDueTime)",
+                                       userInfo: ["projectName": "\(project.name)"],
+                                       task: task,
+                                       dueDate: taskDueDateMinus24Hours) { (error) in
+                DispatchQueue.main.async {
+                    guard error == nil else {
+                        self.presentAlert(title: "Notification Error", message: error!)
+                        return
+                    }
+                }
+            }
         }
     }
 }
@@ -289,6 +325,7 @@ extension TaskController: TaskEntryDelegate {
                 !tasks.contains(task) //ensure task does not exist yet, else go to next object
             else { continue }
             tasks.add(task) //add task to tasks
+            self.addLocalNotification(task: task) //add local notifications for this new task
         }
         //3. Update project's task with the new/editted tasks and save it on the child then at mainContext
         currentProject.tasks = tasks
