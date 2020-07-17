@@ -125,7 +125,7 @@ class TaskCell: UITableViewCell {
         nameLabel.text = task.name
         if let dueDate = task.dueDate {
             detailLabel.isHidden = false
-            detailLabel.text = dueDate.dateToDueDate
+            detailLabel.text = dueDate.toDueDate
         }
         colorView.color = task.project!.color!
         colorView.isFilled = task.isDone //fill colorView if task isDone
