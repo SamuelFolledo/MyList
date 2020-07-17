@@ -118,14 +118,14 @@ class TaskEntryController: UIViewController {
         saveEditButton.title = self.task == nil ? "Add" : "Save"
         guard let name = task.name, let dueDate = task.dueDate else { return }
         nameTextField.text = name
-        dateField.text = dueDate.dateToDueDate
+        dateField.text = dueDate.toDueDate
         datePicker.date = dueDate //set datePicker as well
     }
     
     fileprivate func setupViews() {
         view.backgroundColor = .systemBackground
         let oneMinuteAfterNow: Date = Calendar.current.date(byAdding: .minute, value: 1, to: Date())! //add one minute to now
-        dateField.text = oneMinuteAfterNow.dateToDueDate
+        dateField.text = oneMinuteAfterNow.toDueDate
         datePicker.date = oneMinuteAfterNow
         setupNavigationBar()
         constraintScrollView()
@@ -204,7 +204,7 @@ class TaskEntryController: UIViewController {
     }
     
     @objc func dateChanged() {
-        dateField.text = "\(datePicker.date.dateToDueDate)"
+        dateField.text = "\(datePicker.date.toDueDate)"
     }
 }
 
