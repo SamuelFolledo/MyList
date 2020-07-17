@@ -31,6 +31,7 @@ class TaskController: UIViewController {
     lazy var tableView: UITableView = {
         let table = UITableView(frame: .zero, style: .insetGrouped)
         table.rowHeight = 70
+        table.sectionHeaderHeight = 50
         table.delegate = self
         table.dataSource = self
         table.backgroundColor = .clear
