@@ -25,14 +25,27 @@ extension Date {
             dateFormatter.pmSymbol = "PM"
             return dateFormatter
         }()
+        
+        static let dueTimeFormatter: DateFormatter = {
+            let dateFormatter = DateFormatter()
+            dateFormatter.locale = Locale(identifier: "en_US_POSIX") //get time zone
+            dateFormatter.dateFormat = "h:mm a"
+            dateFormatter.amSymbol = "AM"
+            dateFormatter.pmSymbol = "PM"
+            return dateFormatter
+        }()
     }
     
     var dateToUTC: String {
         return Formatter.utcFormatter.string(from: self)
     }
     
-    var dateToDueDate: String {
+    var toDueDate: String {
         return Formatter.dueDateFormatter.string(from: self)
+    }
+    
+    var toDueTime: String {
+        return Formatter.dueTimeFormatter.string(from: self)
     }
 }
 
