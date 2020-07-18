@@ -10,13 +10,14 @@ import UIKit.UNNotificationResponse_UIKitAdditions
 
 struct LocalNotificationManager {
     
+    static let center = UNUserNotificationCenter.current()
+    
     ///asks permission to push local notication
     static func requestLocalNotification(completion: @escaping (_ error: String?, _ granted: Bool) -> Void) {
         checkPermision { (granted) in
             if granted {
                 completion(nil, granted)
             } else { //if not permitted then ask for permission
-                let center = UNUserNotificationCenter.current()
                 center.requestAuthorization(options: [.alert, .badge, .sound]) { (granted, error) in
                     guard error == nil else {
                         completion(error!.localizedDescription, granted)
@@ -54,7 +55,7 @@ struct LocalNotificationManager {
     
     //MARK: Private Helpers
     private static func checkPermision(completion: @escaping (_ granted: Bool) -> Void) {
-        UNUserNotificationCenter.current().getNotificationSettings() { (settings) in
+        center.getNotificationSettings() { (settings) in
             switch settings.alertSetting {
             case .enabled:
                 completion(true)
@@ -67,7 +68,6 @@ struct LocalNotificationManager {
     }
     
     private static func create(title: String, message: String, userInfo: [AnyHashable: Any], task: Task, dueDate: Date) {
-        let center = UNUserNotificationCenter.current()
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = message
@@ -82,5 +82,15 @@ struct LocalNotificationManager {
 //        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
         let request = UNNotificationRequest(identifier: "\(task.project!.name)+\(task.name!)", content: content, trigger: trigger)
         center.add(request)
+    }
+    
+    static func removeNotification(identifier:String) {
+        center.getPendingNotificationRequests { (requests) in
+            for request in requests {
+                if request.identifier == identifier {
+                    center.removePendingNotificationRequests(withIdentifiers: [identifier])
+                }
+            }
+        }
     }
 }
