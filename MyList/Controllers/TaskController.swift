@@ -194,8 +194,10 @@ extension TaskController: UITableViewDelegate {
         var task: Task!
         if segmentedControl.selectedSegmentIndex == 0 {
             task = fetchedResultsController.object(at: indexPath)
+            LocalNotificationManager.removeNotification(identifier: "\(self.project.name)+\(task.name!)")
         } else {
             task = fetchedResultsController.fetchedObjects![indexPath.row]
+            addLocalNotification(task: task) //
         }
         task.isDone = !task.isDone
         guard let tappedCell = tableView.cellForRow(at: indexPath) as? TaskCell else { return }
