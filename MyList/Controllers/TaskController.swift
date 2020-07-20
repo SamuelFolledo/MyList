@@ -14,18 +14,18 @@ class TaskController: UIViewController {
     weak var coordinator: MainCoordinator!
     weak var coreDataStack: CoreDataStack!
     var project: Project!
-    private lazy var fetchRequest: NSFetchRequest<Task> = {
-        //setup fetch request
-        let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
-        let dueDateSort = NSSortDescriptor(key: #keyPath(Task.dueDate), ascending: true) //soonest/overdue tasks first
-        let nameSort = NSSortDescriptor(key: #keyPath(Task.name), ascending: true)
-        fetchRequest.sortDescriptors = [dueDateSort, nameSort]
-        let shouldFetchDoneTasks = segmentedControl.selectedSegmentIndex == 0 ? false : true //true if user wants to see TODO tasks (TODO = 0, DONE = 1), then shouldFetchDoneTasks is false
-        let filterByProjectName = NSPredicate(format: "%K = %@ AND isDone = %@", "project.name", "\(project.name)", NSNumber(value: shouldFetchDoneTasks)) //fetch Tasks with a project's name property equal to selected project's name
-        fetchRequest.predicate = filterByProjectName
-        fetchRequest.fetchBatchSize = 10 //get 10 tasks at a time
-        return fetchRequest
-    }()
+//    private lazy var fetchRequest: NSFetchRequest<Task> = {
+//        //setup fetch request
+//        let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
+//        let dueDateSort = NSSortDescriptor(key: #keyPath(Task.dueDate), ascending: true) //soonest/overdue tasks first
+//        let nameSort = NSSortDescriptor(key: #keyPath(Task.name), ascending: true)
+//        fetchRequest.sortDescriptors = [dueDateSort, nameSort]
+//        let shouldFetchDoneTasks = segmentedControl.selectedSegmentIndex == 0 ? false : true //true if user wants to see TODO tasks (TODO = 0, DONE = 1), then shouldFetchDoneTasks is false
+//        let filterByProjectName = NSPredicate(format: "%K = %@ AND isDone = %@", "project.name", "\(project.name)", NSNumber(value: shouldFetchDoneTasks)) //fetch Tasks with a project's name property equal to selected project's name
+//        fetchRequest.predicate = filterByProjectName
+//        fetchRequest.fetchBatchSize = 10 //get 10 tasks at a time
+//        return fetchRequest
+//    }()
     
     //MARK: Properties Views
     lazy var tableView: UITableView = {
@@ -41,11 +41,33 @@ class TaskController: UIViewController {
         table.register(TaskCell.self, forCellReuseIdentifier: String(describing: TaskCell.self))
         return table
     }()
-    lazy var fetchedResultsController: NSFetchedResultsController<Task> = {
+    lazy var toDoFetchedResultsController: NSFetchedResultsController<Task> = { //Note: I had to create 2 fetchedResultsController because sectionNameKeyPath is a get only property
+        //setup fetch request: predicate, sort, batchSize
+        let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
+        let dueDateSort = NSSortDescriptor(key: #keyPath(Task.dueDate), ascending: true) //soonest or overdue tasks first
+        let nameSort = NSSortDescriptor(key: #keyPath(Task.name), ascending: true)
+        fetchRequest.sortDescriptors = [dueDateSort, nameSort] //sort by dueDate first then name
+        fetchRequest.predicate = NSPredicate(format: "%K = %@ AND isDone = %d", "project.name", "\(project.name)", false) //fetch our project's tasks that are note done
         //create fetchResultsController
         let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest,
                                                                   managedObjectContext: coreDataStack.mainContext,
-                                                                  sectionNameKeyPath: #keyPath(Task.overDueStatus), //#keyPath(Task.dueDate),
+                                                                  sectionNameKeyPath: #keyPath(Task.overDueStatus), //section by status
+                                                                  cacheName: nil)
+        fetchedResultsController.delegate = self
+        return fetchedResultsController
+    }()
+    lazy var doneFetchedResultsController: NSFetchedResultsController<Task> = {
+        //setup fetch request: predicate, sort, batchSize
+        let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
+        let dueDateSort = NSSortDescriptor(key: #keyPath(Task.dueDate), ascending: false) //latest tasks first
+        let nameSort = NSSortDescriptor(key: #keyPath(Task.name), ascending: true)
+        fetchRequest.sortDescriptors = [dueDateSort, nameSort] //sort by dueDate first then name
+        fetchRequest.predicate = NSPredicate(format: "%K = %@ AND isDone = %d", "project.name", "\(project.name)", true) //fetch our project's tasks that are done
+        fetchRequest.fetchBatchSize = 10 //get 10 tasks at a time
+        //create fetchResultsController
+        let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest,
+                                                                  managedObjectContext: coreDataStack.mainContext,
+                                                                  sectionNameKeyPath: nil, //done tasks doesnt need any section names
                                                                   cacheName: nil)
         fetchedResultsController.delegate = self
         return fetchedResultsController
