@@ -107,17 +107,22 @@ class TaskController: UIViewController {
         view.backgroundColor = .systemBackground
         setupNavigationBar()
         constraintViews()
-        fetchTasks()
         LocalNotificationManager.requestLocalNotification { _,_ in }
     }
     
     ///check which tasks user wants to see and update predicate before performing fetch, then reload data
     @objc fileprivate func fetchTasks() {
         do {
-            let shouldFetchDoneTasks = segmentedControl.selectedSegmentIndex == 0 ? false : true //true if user wants to see TODO tasks (TODO = 0, DONE = 1), then shouldFetchDoneTasks is false
-            let filterByProjectName = NSPredicate(format: "%K = %@ AND isDone = %@", "project.name", "\(project.name)", NSNumber(value: shouldFetchDoneTasks)) //fetch Tasks with a project's name property equal to selected project's name
-            fetchedResultsController.fetchRequest.predicate = filterByProjectName
-            try fetchedResultsController.performFetch()
+            if segmentedControl.selectedSegmentIndex == 0 { //to fetch To Do tasks
+                try toDoFetchedResultsController.performFetch()
+            } else { //to fetch Done tasks
+                try doneFetchedResultsController.performFetch()
+            }
+//            let shouldFetchDoneTasks = segmentedControl.selectedSegmentIndex == 0 ? false : true //true if user wants to see TODO tasks (TODO = 0, DONE = 1), then shouldFetchDoneTasks is false
+//            let filterByProjectName = NSPredicate(format: "%K = %@ AND isDone = %@", "project.name", "\(project.name)", NSNumber(value: shouldFetchDoneTasks)) //fetch Tasks with a project's name property equal to selected project's name
+//            fetchedResultsController.fetchRequest.predicate = filterByProjectName
+//            fetchedResultsController.sectionNameKeyPath = shouldFetchDoneTasks ? nil :
+//            try fetchedResultsController.performFetch()
             tableView.reloadData()
         } catch {
             print(error)
