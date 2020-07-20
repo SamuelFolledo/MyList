@@ -156,7 +156,7 @@ class TaskController: UIViewController {
             LocalNotificationManager.schedule(title: "Last 5 Minute Reminder",
                                        message: "\(project.name)'s \(task.name!) is due in 5 minutes",
                                        userInfo: ["projectName": "\(project.name)"],
-                                       identifier: "\(task.project!.name)+\(task.name!)5m",
+                                       identifier: "\(project.name)+\(task.name!)5m",
                                        dueDate: taskDueDateMinus5Mins) { (error) in
                 DispatchQueue.main.async {
                     guard error == nil else {
@@ -172,7 +172,7 @@ class TaskController: UIViewController {
             LocalNotificationManager.schedule(title: "Unfinished Tasks Reminder",
                                        message: "\(project.name)'s \(task.name!) is due tomorrow, at \(task.dueDate!.toDueTime)",
                                        userInfo: ["projectName": "\(project.name)"],
-                                       identifier: "\(task.project!.name)+\(task.name!)24h",
+                                       identifier: "\(project.name)+\(task.name!)24h",
                                        dueDate: taskDueDateMinus24Hours) { (error) in
                 DispatchQueue.main.async {
                     guard error == nil else {
