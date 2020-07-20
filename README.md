@@ -5,6 +5,7 @@ A todo app that utilizes CoreData for persisting projects and tasks with local n
 - CRUD projects and tasks and persist them using Core Data
 - Get a 24 hours and 5 minutes before any tasks are due 
 - Search projects and tasks
+- Dark Mode support
 - Colorful
 
 ## Live Demo
@@ -12,10 +13,6 @@ A todo app that utilizes CoreData for persisting projects and tasks with local n
 | Full Demo      | Dark Mode Demo |
 | :---:        |    :----:   |
 |   <img src="https://github.com/SamuelFolledo/MyList/blob/master/static/MOB2-1FinalProjectDemo.gif?raw=true" width="400">        |   <img src="https://github.com/SamuelFolledo/MyList/blob/master/static/darkModeDemo.gif?raw=true" width="400">         | 
-
-  Full Demo    
-
-  <img src="https://github.com/SamuelFolledo/MyList/blob/master/static/MOB2-1FinalProjectDemo.gif?raw=true" width="400">  
 
 
 ### Important Links
