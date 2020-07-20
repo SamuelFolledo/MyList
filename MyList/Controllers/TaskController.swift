@@ -312,7 +312,7 @@ extension TaskController: NSFetchedResultsControllerDelegate {
 
 //MARK: Task Entry Delegate
 extension TaskController: TaskEntryDelegate {
-    func didSaveTask(vc: TaskEntryController, didSave: Bool) {
+    func didSaveTask(vc: TaskEntryController, task: Task, didSave: Bool) {
         coordinator.navigationController.popViewController(animated: true)
         //1. check if user wanted to save, there is childContext, there are changes, project still exist, and we can get its tasks
         guard didSave,
@@ -322,13 +322,15 @@ extension TaskController: TaskEntryDelegate {
             let tasks = currentProject.tasks.mutableCopy() as? NSMutableOrderedSet
         else { return }
         //2.loop through each objects in childContext's objects that are tasks
-        for managedObject in childContext.registeredObjects { //get the task from childContext
-            guard let task = managedObject as? Task, //convert managedObject to Task
-                !tasks.contains(task) //ensure task does not exist yet, else go to next object
-            else { continue }
-            tasks.add(task) //add task to tasks
-            self.addLocalNotification(task: task) //add local notifications for this new task
-        }
+//        for managedObject in childContext.registeredObjects { //get the task from childContext
+//            guard let task = managedObject as? Task, //convert managedObject to Task
+//                !tasks.contains(task) //ensure task does not exist yet, else go to next object
+//            else { continue }
+//            tasks.add(task) //add task to tasks
+//            self.addLocalNotification(task: task) //add local notifications for this new task
+//        }
+        self.addLocalNotification(task: task)
+        tasks.add(task)
         //3. Update project's task with the new/editted tasks and save it on the child then at mainContext
         currentProject.tasks = tasks
         self.project = coreDataStack.mainContext.object(with: currentProject.objectID) as? Project //update project
