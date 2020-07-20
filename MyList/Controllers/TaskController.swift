@@ -100,6 +100,7 @@ class TaskController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         segmentedControl.selectedSegmentIndex = 0
+        fetchTasks()
     }
     
     //MARK: Private Methods
