@@ -14,18 +14,6 @@ class TaskController: UIViewController {
     weak var coordinator: MainCoordinator!
     weak var coreDataStack: CoreDataStack!
     var project: Project!
-//    private lazy var fetchRequest: NSFetchRequest<Task> = {
-//        //setup fetch request
-//        let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
-//        let dueDateSort = NSSortDescriptor(key: #keyPath(Task.dueDate), ascending: true) //soonest/overdue tasks first
-//        let nameSort = NSSortDescriptor(key: #keyPath(Task.name), ascending: true)
-//        fetchRequest.sortDescriptors = [dueDateSort, nameSort]
-//        let shouldFetchDoneTasks = segmentedControl.selectedSegmentIndex == 0 ? false : true //true if user wants to see TODO tasks (TODO = 0, DONE = 1), then shouldFetchDoneTasks is false
-//        let filterByProjectName = NSPredicate(format: "%K = %@ AND isDone = %@", "project.name", "\(project.name)", NSNumber(value: shouldFetchDoneTasks)) //fetch Tasks with a project's name property equal to selected project's name
-//        fetchRequest.predicate = filterByProjectName
-//        fetchRequest.fetchBatchSize = 10 //get 10 tasks at a time
-//        return fetchRequest
-//    }()
     
     //MARK: Properties Views
     lazy var tableView: UITableView = {
@@ -119,11 +107,6 @@ class TaskController: UIViewController {
             } else { //to fetch Done tasks
                 try doneFetchedResultsController.performFetch()
             }
-//            let shouldFetchDoneTasks = segmentedControl.selectedSegmentIndex == 0 ? false : true //true if user wants to see TODO tasks (TODO = 0, DONE = 1), then shouldFetchDoneTasks is false
-//            let filterByProjectName = NSPredicate(format: "%K = %@ AND isDone = %@", "project.name", "\(project.name)", NSNumber(value: shouldFetchDoneTasks)) //fetch Tasks with a project's name property equal to selected project's name
-//            fetchedResultsController.fetchRequest.predicate = filterByProjectName
-//            fetchedResultsController.sectionNameKeyPath = shouldFetchDoneTasks ? nil :
-//            try fetchedResultsController.performFetch()
             tableView.reloadData()
         } catch {
             print(error)
@@ -210,7 +193,6 @@ extension TaskController {
         if segmentedControl.selectedSegmentIndex == 0 {
             task = toDoFetchedResultsController.object(at: indexPath)
         } else {
-//            task = doneFetchedResultsController.fetchedObjects![indexPath.row]
             task = doneFetchedResultsController.object(at: indexPath)
         }
         cell.task = task
@@ -227,8 +209,7 @@ extension TaskController: UITableViewDelegate {
             LocalNotificationManager.removeNotification(identifier: "\(self.project.name)+\(task.name!)24h")
         } else {
             task = doneFetchedResultsController.object(at: indexPath)
-//            task = fetchedResultsController.fetchedObjects![indexPath.row]
-            addLocalNotification(task: task) //
+            addLocalNotification(task: task)
         }
         task.isDone = !task.isDone
         guard let tappedCell = tableView.cellForRow(at: indexPath) as? TaskCell else { return }
@@ -238,7 +219,6 @@ extension TaskController: UITableViewDelegate {
     
     ///Newer Swipe To Delete or Edit
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-//        let swipedTask: Task = fetchedResultsController.object(at: indexPath)
         var swipedTask: Task!
         if segmentedControl.selectedSegmentIndex == 0 {
             swipedTask = toDoFetchedResultsController.object(at: indexPath)
@@ -292,7 +272,6 @@ extension TaskController: UITableViewDataSource {
         } else {
             let sectionInfo = doneFetchedResultsController.sections![section]
             return sectionInfo.numberOfObjects
-//            return fetchedResultsController.fetchedObjects?.count ?? 0
         }
     }
     
@@ -378,15 +357,8 @@ extension TaskController: TaskEntryDelegate {
             let currentProject = childContext.object(with: self.project.objectID) as? Project, //fetch the project with the childContext that contains the newly created Task (this makes sure project and tasks are under the same context)
             let tasks = currentProject.tasks.mutableCopy() as? NSMutableOrderedSet
         else { return }
-        //2.loop through each objects in childContext's objects that are tasks
-//        for managedObject in childContext.registeredObjects { //get the task from childContext
-//            guard let task = managedObject as? Task, //convert managedObject to Task
-//                !tasks.contains(task) //ensure task does not exist yet, else go to next object
-//            else { continue }
-//            tasks.add(task) //add task to tasks
-//            self.addLocalNotification(task: task) //add local notifications for this new task
-//        }
-        self.addLocalNotification(task: task)
+        //2. add task to tasks
+        self.addLocalNotification(task: task) //add local notification
         tasks.add(task)
         //3. Update project's task with the new/editted tasks and save it on the child then at mainContext
         currentProject.tasks = tasks
