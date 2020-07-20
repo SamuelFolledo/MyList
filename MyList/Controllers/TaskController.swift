@@ -197,6 +197,11 @@ extension TaskController {
         }
         cell.task = task
     }
+    
+    func removeLocalNotification(task: Task) {
+        LocalNotificationManager.removeNotification(identifier: "\(self.project.name)+\(task.name!)5m")
+        LocalNotificationManager.removeNotification(identifier: "\(self.project.name)+\(task.name!)24h")
+    }
 }
 
 //MARK: TableView Delegate
@@ -205,8 +210,7 @@ extension TaskController: UITableViewDelegate {
         var task: Task!
         if segmentedControl.selectedSegmentIndex == 0 {
             task = toDoFetchedResultsController.object(at: indexPath)
-            LocalNotificationManager.removeNotification(identifier: "\(self.project.name)+\(task.name!)5m")
-            LocalNotificationManager.removeNotification(identifier: "\(self.project.name)+\(task.name!)24h")
+            removeLocalNotification(task: task)
         } else {
             task = doneFetchedResultsController.object(at: indexPath)
             addLocalNotification(task: task)
@@ -225,6 +229,7 @@ extension TaskController: UITableViewDelegate {
         } else {
             swipedTask = doneFetchedResultsController.object(at: indexPath)
         }
+        removeLocalNotification(task: swipedTask)
         let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { (action, view, completion: @escaping ( Bool) -> Void) in
             self.coreDataStack.mainContext.delete(swipedTask)
             self.coreDataStack.saveContext()
