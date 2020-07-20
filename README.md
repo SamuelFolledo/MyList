@@ -8,9 +8,9 @@ A todo app that utilizes CoreData for persisting projects and tasks.
 - Colorful
 
 ## Live Demo
-  **Full Demo**  |  **Tasks Demo**    
-:-------------------------:|:--------------------:|
-  <img src="" width="400" height="800">  |  <img src="" width="400" height="800">  
+  Full Demo    
+
+  <img src="https://github.com/SamuelFolledo/MyList/blob/master/static/MOB2-1FinalProjectDemo.gif?raw=true">  
 
 
 ### Important Links
