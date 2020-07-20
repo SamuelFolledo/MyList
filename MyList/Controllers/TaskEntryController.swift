@@ -11,7 +11,7 @@ import CoreData
 
 // MARK: TaskEntryDelegate
 protocol TaskEntryDelegate {
-  func didSaveTask(vc: TaskEntryController, didSave: Bool)
+    func didSaveTask(vc: TaskEntryController, task: Task, didSave: Bool)
 }
 
 class TaskEntryController: UIViewController {
@@ -200,7 +200,7 @@ class TaskEntryController: UIViewController {
         task.details = "No details"
         task.dueDate = datePicker.date
         task.isDone = false
-        delegate?.didSaveTask(vc: self, didSave: true)
+        delegate?.didSaveTask(vc: self, task: task, didSave: true)
     }
     
     @objc func dateChanged() {
