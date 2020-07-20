@@ -8,6 +8,11 @@ A todo app that utilizes CoreData for persisting projects and tasks with local n
 - Colorful
 
 ## Live Demo
+
+| Full Demo      | Dark Mode Demo |
+| :---:        |    :----:   |
+|   <img src="https://github.com/SamuelFolledo/MyList/blob/master/static/MOB2-1FinalProjectDemo.gif?raw=true" width="400">        |   <img src="https://github.com/SamuelFolledo/MyList/blob/master/static/darkModeDemo.gif?raw=true" width="400">         | 
+
   Full Demo    
 
   <img src="https://github.com/SamuelFolledo/MyList/blob/master/static/MOB2-1FinalProjectDemo.gif?raw=true" width="400">  
