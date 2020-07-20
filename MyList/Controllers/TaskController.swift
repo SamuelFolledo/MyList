@@ -173,7 +173,7 @@ class TaskController: UIViewController {
             LocalNotificationManager.schedule(title: "Last 5 Minute Reminder",
                                        message: "\(project.name)'s \(task.name!) is due in 5 minutes",
                                        userInfo: ["projectName": "\(project.name)"],
-                                       task: task,
+                                       identifier: "\(task.project!.name)+\(task.name!)5m",
                                        dueDate: taskDueDateMinus5Mins) { (error) in
                 DispatchQueue.main.async {
                     guard error == nil else {
@@ -189,7 +189,7 @@ class TaskController: UIViewController {
             LocalNotificationManager.schedule(title: "Unfinished Tasks Reminder",
                                        message: "\(project.name)'s \(task.name!) is due tomorrow, at \(task.dueDate!.toDueTime)",
                                        userInfo: ["projectName": "\(project.name)"],
-                                       task: task,
+                                       identifier: "\(task.project!.name)+\(task.name!)24h",
                                        dueDate: taskDueDateMinus24Hours) { (error) in
                 DispatchQueue.main.async {
                     guard error == nil else {
@@ -208,9 +208,10 @@ extension TaskController {
         guard let cell = cell as? TaskCell else { return }
         var task: Task!
         if segmentedControl.selectedSegmentIndex == 0 {
-            task = fetchedResultsController.object(at: indexPath)
+            task = toDoFetchedResultsController.object(at: indexPath)
         } else {
-            task = fetchedResultsController.fetchedObjects![indexPath.row]
+//            task = doneFetchedResultsController.fetchedObjects![indexPath.row]
+            task = doneFetchedResultsController.object(at: indexPath)
         }
         cell.task = task
     }
@@ -221,10 +222,12 @@ extension TaskController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         var task: Task!
         if segmentedControl.selectedSegmentIndex == 0 {
-            task = fetchedResultsController.object(at: indexPath)
-            LocalNotificationManager.removeNotification(identifier: "\(self.project.name)+\(task.name!)")
+            task = toDoFetchedResultsController.object(at: indexPath)
+            LocalNotificationManager.removeNotification(identifier: "\(self.project.name)+\(task.name!)5m")
+            LocalNotificationManager.removeNotification(identifier: "\(self.project.name)+\(task.name!)24h")
         } else {
-            task = fetchedResultsController.fetchedObjects![indexPath.row]
+            task = doneFetchedResultsController.object(at: indexPath)
+//            task = fetchedResultsController.fetchedObjects![indexPath.row]
             addLocalNotification(task: task) //
         }
         task.isDone = !task.isDone
@@ -235,7 +238,13 @@ extension TaskController: UITableViewDelegate {
     
     ///Newer Swipe To Delete or Edit
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let swipedTask: Task = fetchedResultsController.object(at: indexPath)
+//        let swipedTask: Task = fetchedResultsController.object(at: indexPath)
+        var swipedTask: Task!
+        if segmentedControl.selectedSegmentIndex == 0 {
+            swipedTask = toDoFetchedResultsController.object(at: indexPath)
+        } else {
+            swipedTask = doneFetchedResultsController.object(at: indexPath)
+        }
         let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { (action, view, completion: @escaping ( Bool) -> Void) in
             self.coreDataStack.mainContext.delete(swipedTask)
             self.coreDataStack.saveContext()
@@ -249,7 +258,7 @@ extension TaskController: UITableViewDelegate {
     ///view for header
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         if segmentedControl.selectedSegmentIndex == 0 { //Add header for to do tasks only that are overdue
-            guard let overdueStatus = fetchedResultsController.sections?[section].name, overdueStatus != "" else { //if there is no or nil status
+            guard let overdueStatus = toDoFetchedResultsController.sections?[section].name, overdueStatus != "" else { //if there is no or nil status
                 return nil
             }
             let headerView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 50))
@@ -270,18 +279,20 @@ extension TaskController: UITableViewDelegate {
 extension TaskController: UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
         if segmentedControl.selectedSegmentIndex == 0 {
-            return fetchedResultsController.sections?.count ?? 0
+            return toDoFetchedResultsController.sections?.count ?? 0
         } else { //in done tasks
-            return 1
+            return doneFetchedResultsController.sections?.count ?? 0
         }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if segmentedControl.selectedSegmentIndex == 0 {
-            let sectionInfo = fetchedResultsController.sections![section]
+            let sectionInfo = toDoFetchedResultsController.sections![section]
             return sectionInfo.numberOfObjects
         } else {
-            return fetchedResultsController.fetchedObjects?.count ?? 0
+            let sectionInfo = doneFetchedResultsController.sections![section]
+            return sectionInfo.numberOfObjects
+//            return fetchedResultsController.fetchedObjects?.count ?? 0
         }
     }
     
@@ -295,26 +306,44 @@ extension TaskController: UITableViewDataSource {
 // MARK: NSFetchedResultsController Delegate
 extension TaskController: NSFetchedResultsControllerDelegate {
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        tableView.beginUpdates()
+        if segmentedControl.selectedSegmentIndex == 0 && controller != toDoFetchedResultsController { //if viewing to do tasks, only toDoFetchedResultsController should be able to update the tableView's cells
+            return
+        } else if segmentedControl.selectedSegmentIndex == 1 && controller != doneFetchedResultsController {
+            return
+        } else {
+            tableView.beginUpdates()
+        }
     }
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
-        switch type {
-        case .insert:
-            tableView.insertRows(at: [newIndexPath!], with: .automatic)
-        case .delete:
-            let deleteAnimation: UITableView.RowAnimation = self.segmentedControl.selectedSegmentIndex == 0 ? .right : .left
-            tableView.deleteRows(at: [indexPath!], with: deleteAnimation)
-        case .update:
-            let cell = tableView.cellForRow(at: indexPath!) as! TaskCell
-            self.configure(cell: cell, for: indexPath!)
-        case .move: //not tested
-            tableView.deleteRows(at: [indexPath!], with: .automatic)
-            tableView.insertRows(at: [newIndexPath!], with: .automatic)
-        default: break
+        if segmentedControl.selectedSegmentIndex == 0 && controller != toDoFetchedResultsController { //if viewing to do tasks, only toDoFetchedResultsController should be able to update the tableView's cells
+            return
+        } else if segmentedControl.selectedSegmentIndex == 1 && controller != doneFetchedResultsController {
+            return
+        } else { //ensures we are only updating tableView with the right fetchedResultsController
+            switch type {
+            case .insert:
+                tableView.insertRows(at: [newIndexPath!], with: .automatic)
+            case .delete:
+                let deleteAnimation: UITableView.RowAnimation = self.segmentedControl.selectedSegmentIndex == 0 ? .right : .left
+                tableView.deleteRows(at: [indexPath!], with: deleteAnimation)
+            case .update:
+                let cell = tableView.cellForRow(at: indexPath!) as! TaskCell
+                self.configure(cell: cell, for: indexPath!)
+            case .move: //not tested
+                tableView.deleteRows(at: [indexPath!], with: .automatic)
+                tableView.insertRows(at: [newIndexPath!], with: .automatic)
+            default: break
+            }
         }
     }
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        tableView.endUpdates()
+        if segmentedControl.selectedSegmentIndex == 0 && controller != toDoFetchedResultsController { //if viewing to do tasks, only toDoFetchedResultsController should be able to update the tableView's cells
+            return
+        } else if segmentedControl.selectedSegmentIndex == 1 && controller != doneFetchedResultsController {
+            return
+        } else {
+            tableView.endUpdates()
+        }
     }
     //Needed for updating sections
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
