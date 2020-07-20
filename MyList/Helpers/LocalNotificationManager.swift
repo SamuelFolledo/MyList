@@ -30,11 +30,11 @@ struct LocalNotificationManager {
     }
     
     ///Add local notification after checking permissions
-    static func schedule(title: String, message: String, userInfo: [AnyHashable: Any], task: Task, dueDate: Date,
+    static func schedule(title: String, message: String, userInfo: [AnyHashable: Any], identifier: String, dueDate: Date,
                               completion: @escaping (_ error: String?) -> Void) {
         checkPermision { (granted) in
             if granted {
-                create(title: title, message: message, userInfo: userInfo, task: task, dueDate: dueDate)
+                create(title: title, message: message, userInfo: userInfo, identifier: identifier, dueDate: dueDate)
                 completion(nil)
             } else {
                 requestLocalNotification { (error, granted) in
@@ -43,7 +43,7 @@ struct LocalNotificationManager {
                         return
                     }
                     if granted {
-                        create(title: title, message: message, userInfo: userInfo, task: task, dueDate: dueDate)
+                        create(title: title, message: message, userInfo: userInfo, identifier: identifier, dueDate: dueDate)
                         completion(nil)
                     } else {
                         completion("Notification is disabled. Please go to Settings and allow us to send you notifications.")
@@ -67,7 +67,7 @@ struct LocalNotificationManager {
         }
     }
     
-    private static func create(title: String, message: String, userInfo: [AnyHashable: Any], task: Task, dueDate: Date) {
+    private static func create(title: String, message: String, userInfo: [AnyHashable: Any], identifier: String, dueDate: Date) {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = message
@@ -76,11 +76,11 @@ struct LocalNotificationManager {
         content.sound = UNNotificationSound.default
         //NOTE: Trigger by date
         let dateComponents = Calendar.autoupdatingCurrent.dateComponents([.year, .month, .day, .hour, .minute], from: dueDate) //convert dueDate to calendar
-        print("Alert at \(dateComponents)")
+        print("Alert for \(identifier) is created at \(dateComponents)")
         let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
         //NOTE: Trigger by seconds
 //        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
-        let request = UNNotificationRequest(identifier: "\(task.project!.name)+\(task.name!)", content: content, trigger: trigger)
+        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
         center.add(request)
     }
     
@@ -88,6 +88,7 @@ struct LocalNotificationManager {
         center.getPendingNotificationRequests { (requests) in
             for request in requests {
                 if request.identifier == identifier {
+                    print("Deleting... ", request.content.title)
                     center.removePendingNotificationRequests(withIdentifiers: [identifier])
                 }
             }
