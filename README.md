@@ -1,10 +1,10 @@
 # MyList
-A todo app that utilizes CoreData for persisting projects and tasks. 
+A todo app that utilizes CoreData for persisting projects and tasks with local notifications. Never forget a task you have to do ever again!
 
 ## Features
-- Persisting projects and tasks
+- CRUD projects and tasks and persist them using Core Data
+- Get a 24 hours and 5 minutes before any tasks are due 
 - Search projects and tasks
-- Set notifications
 - Colorful
 
 ## Live Demo
