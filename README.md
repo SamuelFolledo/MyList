@@ -10,7 +10,7 @@ A todo app that utilizes CoreData for persisting projects and tasks.
 ## Live Demo
   Full Demo    
 
-  <img src="https://github.com/SamuelFolledo/MyList/blob/master/static/MOB2-1FinalProjectDemo.gif?raw=true">  
+  <img src="https://github.com/SamuelFolledo/MyList/blob/master/static/MOB2-1FinalProjectDemo.gif?raw=true" width="400">  
 
 
 ### Important Links
